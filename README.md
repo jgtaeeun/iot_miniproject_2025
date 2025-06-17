@@ -4,7 +4,7 @@ smartfactory, Object Detection
 ## 미니프로젝트
 ### 포트폴리오 개발
 
-## 89일차(6/16)
+
 
 #### MES 공정관리 시뮬레이션
 - 참조소스
@@ -25,16 +25,18 @@ smartfactory, Object Detection
         - SmartFactory는 비전, 시각화, Iot 센서장비, 클라우드, AI + 시스템
 ##### 작업 개요
 
-- <img src='./mes공정관리/시스템구조.png' width=500>
 전체 구조도
+- <img src='./miniproject_mes/시스템구조.png' width=500>
+
 
 - Iot 디바이스 : C# 시뮬레이션으로 대체 , MQTT Publish 병행
 - MQTT 시스템 : Mosquitto broker 사용 
 - MQTT Subscriber : MQTT 데이터 수신 및 DB저장
 - 공정관리 시스템 : WPF 공정관리 모니터링 및 계획, 리포트
 
-- <img src='./mes공정관리/db설계.png' width=500>
-ERD 
+- ERD 
+<img src='./miniproject_mes/db설계.png' width=500>
+
 
 ##### 양품/불량품 선별용 Iot 센서장비
 - [컬러센서](https://www.devicemart.co.kr/goods/view?no=1066926) : 색상으로 선별
@@ -67,21 +69,45 @@ ERD
 - 음식포장 검사, 볼트 조립 검사, 납땜 공정, 액체 충전 검사, ...
 
 ##### 공정관리 ERD
-- MySQL Workbench - new schema 생성 - reverse engineer - 테이블 생성 및 관계 형성 - database탭의 forward engineer 
-- [테이블 생성 및 관계 형성 모델](./miniproject_mes/mes%20erd.mwb)
-- <img src='./miniproject_mes/erd.png' width=500>
+1. MySQL Workbench에서 데이터베이스 생성
+    - new schema 생성 - reverse engineer - 테이블 생성 및 관계 형성 - database탭의 forward engineer 
+    - [테이블 생성 및 관계 형성 모델](./miniproject_mes/mes%20erd.mwb)
+    - 테이블
+        - settings - 공통코드 테이블
+        - schedules - 공정계획 테이블
+        - processes - 처리할 실시간 공정과정 저장 테이블 
+    - <img src='./miniproject_mes/erd.png' width=500>
+
+##### Iot 디바이스 시뮬레이터 [WpfIotSimulatorApp](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/)
+- 라즈베리파이, 아두이노 등 사용 디바이스 구성 및 구현
+- C# 시뮬레이션으로 동작을 만드는 윈앱 구현
+
+1. visual studio - wpf애플리케이션 프로젝트 생성
+2. Resources 폴더 생성 및 이미지파일 저장 , 빌드작업을 리소스, 출력 디렉토리로 복사를 항상복사로 설정 후 솔루션 빌드
+3. nuget패키지 관리 - mahapps.metro, community.toolkit, newtonsoft.json, mqttnet
+4. app.xaml - resource, startup  , app.xaml.cs - startup함수 정의
+5. MainView.xaml ,MainView.xaml.cs - mahapps 설정
+6. MainViewModel.cs에서 communitytoolkit 설정
+7. HMI 애니메이션- MainView.xaml 디자인 및  MainView.xaml.cs 작성   
+
+##### MQTT Subscriber [WpfMqttSubApp](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/)
+- WPF 과목(SMART HOME 실습)에서 사용했던 MQTT Subscriber 활용
+- DB 연결부분  수정 및  DB 저장부분 추가 
+
+1. 솔루션-오른쪽마우스-추가-기존프로젝트 - iot_csharp_wpf_2025\day73\Day10Wpf\WpfMqttSubApp의 WpfMqttSubApp.csproj 파일 선택 - 솔루션 재빌드
+2. 
+
+##### MrpSimulator [WpfMrpSimulator](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/)
 
 #### 파이썬 AI + ASP.NET 연동
 
 
 ### 파이널 프로젝트
 
-## 89일차(6/16)
 
 #### 주제선정 
 - 주제선정 - Iot에 부합되는 주제 선정
 - 강사에게 주제 점검, 테일러링
-
 - 구매리스트 엑셀 작성 
 - 강사에게 구매리스트 점검
 - 발표자료 작성
@@ -90,3 +116,24 @@ ERD
 #### 프로젝트 주제 발표
 
 #### 프로젝트 사용 재료선정
+
+
+
+## 89일차(6/16)
+- MES 공정관리 시뮬레이션 
+    - 센서 검색 
+    - db ERD 설계
+- 파이널 프로젝트 
+    - 주제선정
+    - 스마트홈 전기량 측정 및 자동 제어
+    - 소비패턴 분석
+    - 태양광전기로 비상전력 사용
+
+
+
+## 90일차(6/17)
+- MES 공정관리 시뮬레이션 
+    - Iot 디바이스 시뮬레이터 - C# 시뮬레이션으로 동작을 만드는 WPF앱 
+
+- 파이널 프로젝트
+    - 구매리스트 엑셀 작성 

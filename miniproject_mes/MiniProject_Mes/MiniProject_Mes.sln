@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfIotSimulatorApp", "WpfIotSimulatorApp\WpfIotSimulatorApp.csproj", "{1B57722D-6CAA-48C1-AF57-84AFFE2220B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfMqttSubApp", "WpfMqttSubApp\WpfMqttSubApp.csproj", "{8C377D84-525E-892E-BC14-F2DC7447F896}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfMrpSimulatorApp", "WpfMrpSimulatorApp\WpfMrpSimulatorApp.csproj", "{581D9AB3-60B0-47D1-B451-67FBA730F447}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B57722D-6CAA-48C1-AF57-84AFFE2220B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B57722D-6CAA-48C1-AF57-84AFFE2220B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B57722D-6CAA-48C1-AF57-84AFFE2220B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B57722D-6CAA-48C1-AF57-84AFFE2220B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C377D84-525E-892E-BC14-F2DC7447F896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C377D84-525E-892E-BC14-F2DC7447F896}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C377D84-525E-892E-BC14-F2DC7447F896}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C377D84-525E-892E-BC14-F2DC7447F896}.Release|Any CPU.Build.0 = Release|Any CPU
+		{581D9AB3-60B0-47D1-B451-67FBA730F447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581D9AB3-60B0-47D1-B451-67FBA730F447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581D9AB3-60B0-47D1-B451-67FBA730F447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581D9AB3-60B0-47D1-B451-67FBA730F447}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8B06544-9AA0-422A-A74F-F14476AFEF25}
+	EndGlobalSection
+EndGlobal
