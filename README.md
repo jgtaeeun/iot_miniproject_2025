@@ -90,6 +90,12 @@ smartfactory, Object Detection
 6. MainViewModel.cs에서 communitytoolkit 설정
 7. HMI 애니메이션- MainView.xaml 디자인 및  MainView.xaml.cs 작성   
 
+
+https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
+
+
+
+
 ##### MQTT Subscriber [WpfMqttSubApp](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/)
 - WPF 과목(SMART HOME 실습)에서 사용했던 MQTT Subscriber 활용
 - DB 연결부분  수정 및  DB 저장부분 추가 
