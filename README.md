@@ -158,6 +158,10 @@ https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
         ```
 
 
+
+https://github.com/user-attachments/assets/1d59dba0-18cc-4bcf-b5fa-58171ffe82f5
+
+
 ##### MQTT Subscriber [WpfMqttSubApp](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/)
 - WPF 과목(SMART HOME 실습)에서 사용했던 MQTT Subscriber 활용
 - DB 연결부분  수정 및  DB 저장부분 추가 
