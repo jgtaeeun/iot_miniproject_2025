@@ -18,6 +18,10 @@ namespace WpfIotSimulatorApp
             {
                 DataContext = viewModel,
             };
+
+            viewModel.StartHmiRequested += view.startHmiAni;
+            viewModel.StartSensorCheckRequested += view.startCheckAni;
+            
             view.ShowDialog();
         }
     }

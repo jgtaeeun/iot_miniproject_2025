@@ -15,15 +15,19 @@
             <RowDefinition Height="50"></RowDefinition>
         </Grid.RowDefinitions>
         <!--ui구성-->
-        <Label Grid.Row="0" Content="{Binding Greeting}" FontSize="20" FontWeight="Bold"></Label>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Label Content="{Binding  Greeting}" FontSize="20" FontWeight="Bold" ></Label>
+            <Label Content="{Binding  LogText}" FontSize="14" VerticalAlignment="Center"></Label>
+        </StackPanel>
+       
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button x:Name="BtnTest" Content="Test" Click="BtnTest_Click" Margin="0,0,5,0"></Button>
-                <Button x:Name="BtnCheck" Content="Check" Click="BtnCheck_Click"></Button>
+                <Button  Content="Move" Command="{Binding MoveCommand}" Margin="0,0,5,0"></Button>
+                <Button  Content="Check"  Command="{Binding CheckCommand}"></Button>
             </StackPanel>
 
             <!--HMI-->
@@ -32,7 +36,7 @@
                 <Image x:Name="GearStart" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Left="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
                 <Image x:Name="GearEnd" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Right="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="454"></Image>
                 <Image x:Name="SortingSensor" Height="45" Width="45" Source="/Resources/sensor.png" Canvas.Right="90" Canvas.Left="414" HorizontalAlignment="Left" VerticalAlignment="Center" ></Image>
-                <Rectangle x:Name="Product" Height="40" Width="40" Stroke="Black" Fill="White" Canvas.Left="127" Canvas.Top="61" HorizontalAlignment="Left" VerticalAlignment="Center"></Rectangle>
+                <Rectangle x:Name="Product" Height="40" Width="40" Stroke="Black" Fill="{Binding ProductBrush}" Canvas.Left="127" Canvas.Top="61" HorizontalAlignment="Left" VerticalAlignment="Center"></Rectangle>
             </Canvas>
             
             

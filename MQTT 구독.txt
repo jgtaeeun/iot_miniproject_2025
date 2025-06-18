@@ -1,0 +1,63 @@
+
+        public MainViewModel(IDialogCoordinator coordiantor)
+        {
+            this.dialogCoordinator = coordiantor;
+            BrokerHost = "210.119.12.52";
+            DBHost = "210.119.12.110";
+            connection = new MySqlConnection();
+            TOPIC = "pknu/sh01/data";
+
+        }
+
+        [RelayCommand]
+        public async Task ConnectMqtt ()
+        {
+            if (string.IsNullOrEmpty(BrokerHost))
+            {
+                await this.dialogCoordinator.ShowMessageAsync(this, "브로커연결합니다.", "브로커연결주소없음");
+                return;
+            }
+
+            //mqtt 브로커에 접속해서 데이터를 가져오기
+            ConnectMqttBroker();
+        }
+
+        private async Task ConnectMqttBroker()
+        {   //mqtt 클라이언트 생성
+            var mqttFactory = new MqttClientFactory();
+            _mqttClient = mqttFactory.CreateMqttClient();
+
+            //matt 클라이언트 접속 설정
+            var mqttClientOptions = new MqttClientOptionsBuilder()
+                .WithTcpServer(BrokerHost)
+                .WithCleanSession(true)
+                .Build();
+
+            //matt 접속 후 이벤트 처리
+            _mqttClient.ConnectedAsync += async e =>
+            {
+                LogText += "MQTT Broker 연결성공\n";
+
+                //연결이후 구독(subscribe)
+                await _mqttClient.SubscribeAsync(TOPIC);
+            };
+
+            _mqttClient.ApplicationMessageReceivedAsync += e =>
+            {
+                var topic = e.ApplicationMessage.Topic;
+                var payload = e.ApplicationMessage.ConvertPayloadToString(); //byte데이터를 utf-8문자열로 변환
+            
+                //json으로 변경하여 db에저장하기 위한 과정
+                var data = JsonConvert.DeserializeObject<SensingInfo>(payload);
+                // Debug.WriteLine($"{data.COUNT} /{data.SENSING_DT}/{data.HUMID}/ {data.LIGHT}");
+                SaveSensingData(data);
+
+                //richtextbox에 데이터 띄우기
+                LogText += $"LineNumber:{LineCounter++}\n";
+                LogText += $"{payload}\n";
+
+                return Task.CompletedTask;
+            };
+
+            await _mqttClient.ConnectAsync(mqttClientOptions);
+        }

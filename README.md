@@ -88,12 +88,74 @@ smartfactory, Object Detection
 4. app.xaml - resource, startup  , app.xaml.cs - startup함수 정의
 5. MainView.xaml ,MainView.xaml.cs - mahapps 설정
 6. MainViewModel.cs에서 communitytoolkit 설정
-7. HMI 애니메이션- MainView.xaml 디자인 및  MainView.xaml.cs 작성   
-
+7. HMI 애니메이션- MainView.xaml 디자인 및  MainView.xaml.cs 작성 
+    - MainView.xaml의 버튼의 click이벤트
+    - MainView.xaml.cs의 click이벤트 함수 정의
 
 https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
 
 
+8. HMI 애니메이션- MVVM방식
+    - 애니메이션은 디자이너역할로 view에서 작성
+    - MainView.xaml의 버튼 속성command 바인딩       [MainView.xaml](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/Views/MainView.xaml)
+    - MainView.xaml.cs의 startHmiAni, .startCheckAni 함수 접근제어자를 public으로 수정   [MainView.xaml.cs](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/Views/MainView.xaml.cs)
+    - MainViewModel.cs에서 relayCommand 함수정의     [MainViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/ViewModels/MainViewModel.cs)
+    - app.xaml.cs에서 view의 메서드와 viewModel 이벤트 연결    [app.xaml.cs](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/App.xaml.cs)
+        ```cs
+        viewModel.StartHmiRequested += view.startHmiAni;
+        viewModel.StartSensorCheckRequested += view.startCheckAni;
+        ```
+9. MQTT로 센서데이터 전송 [MainViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfIotSimulatorApp/ViewModels/MainViewModel.cs)
+    - MQTT 접속 설정
+        ```cs
+        public MainViewModel()
+        {
+            
+            LogText = "프로그램 실행";
+            //MQTT 설정
+            brokerHost = "210.119.12.110";
+            clientId = "IOT01";
+            topic = "pknu/mes/data";
+            InitMqttClient();
+        }
+        private async void InitMqttClient()
+        {
+            var mqttFactory = new MqttClientFactory();   
+            mqttClient = mqttFactory.CreateMqttClient();  //mqttClient 변수를 통해 MQTT 브로커와 통신할 수 있습니다.
+
+            //MQTT 클라이언트 접속 설정
+            var mqttClientOptions = new MqttClientOptionsBuilder()
+                                    .WithTcpServer(brokerHost,1883)   //mqtt 포트번호
+                                    .WithCleanSession(true)
+                                    .Build();
+
+
+            //matt 접속 후 이벤트 처리
+            mqttClient.ConnectedAsync += async e =>
+            {
+                LogText += "MQTT Broker 연결성공\n";
+            };
+
+            
+            await mqttClient.ConnectAsync(mqttClientOptions);
+        }
+        ```
+    - MQTT 발행
+        ```cs
+        //MQTT로 데이터 전송
+        var resultText = result == 1 ? "OK" : "FAIL";
+        var payload = new CheckResult { ClientId = clientId, Result = resultText, TimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") };
+        var jsonPayload = JsonConvert.SerializeObject(payload, Formatting.Indented);
+        var message = new MqttApplicationMessageBuilder()
+                    .WithTopic(topic)
+                    .WithPayload(jsonPayload)
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce)
+                    .Build();
+
+        //발행
+        mqttClient.PublishAsync(message);
+        LogText = $"MQTT브로커에 양품불량품 판단 메시지 전송 : { logNum++}";
+        ```
 
 
 ##### MQTT Subscriber [WpfMqttSubApp](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/)
@@ -139,7 +201,15 @@ https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
 
 ## 90일차(6/17)
 - MES 공정관리 시뮬레이션 
-    - Iot 디바이스 시뮬레이터 - C# 시뮬레이션으로 동작을 만드는 WPF앱 
+    - Iot 디바이스 시뮬레이터(C# 시뮬레이션으로 동작을 만드는 WPF앱) - MOVE, CHECK 애니메이션
+- 파이널 프로젝트
+    - 구매리스트 엑셀 작성 
+
+
+## 91일차(6/18)
+- MES 공정관리 시뮬레이션 
+    - Iot 디바이스 시뮬레이터(C# 시뮬레이션으로 동작을 만드는 WPF앱) - MVVM방식의 MOVE, CHECK 애니메이션  
+    - Iot 디바이스 시뮬레이터(C# 시뮬레이션으로 동작을 만드는 WPF앱) - 양품불량품 판단 데이터 mqtt 발행
 
 - 파이널 프로젝트
     - 구매리스트 엑셀 작성 
