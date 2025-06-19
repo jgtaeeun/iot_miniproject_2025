@@ -209,10 +209,28 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
     - **json데이터 구독 시,   var data = JsonConvert.`DeserializeObject`<모델>(payload);**
 
 3. DB 저장부분 추가 
+    - 설정파일
+        1. config.json 파일 생성 - 빌드작업을 내용, 출력디렉토리 복사를 항상복사 -  솔루션 재빌드
+        2. 설정파일 config.json에 db연결, mqtt연결 관련 변수 작성 [설정파일](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/config.json)
+        3. Models폴더 내에 config설정을 쓸 TotalConfig.cs 클래스 작성 [config설정을 쓸 모델](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/Models/TotalConfig.cs)
+            - 속성의 이름은 config.json의 키값과 일치
+        4. Helper폴더 내에 config설정파일을 읽어와 TotalConfig.cs클래스를 생성하는 함수를 담은 클래스 ConfigLoader.cs 작성 [TotalConfig 클래스 생성 및 설정파일 읽는 함수](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/Helpers/ConfigLoader.cs)
+        5. App.xaml.cs에서 뷰화면 로드 전에 config.json 로드 [app.xaml.cs](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/App.xaml.cs)
+        6. MainViewModel.cs에서 mqtt,db관련 속성들을 설정파일의 값으로 수정 , Helper폴더 내 Common.cs의 ConnectString도 mqtt,db관련 속성들을 설정파일의 값으로 수정
+            ```cs
+            BrokerHost = App.configuration.Mqtt.Broker;
+            DBHost = App.configuration.Database.Server;
+            ```
     - MainViewModel.cs에 SaveSensingData()함수
-
+        - scheduleId가 있어야 Insert가능하므로 차후에 함
 
 ##### MrpSimulator [WpfMrpSimulator](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/)
+1. 설정파일 
+2. Resources 폴더 생성 및 이미지파일 저장 , 전체 이미지 한꺼번에 선택하는 방법(첫 번째 이미지를 클릭합니다. 마지막 이미지에서 Shift + 클릭을 하면, 첫~마지막까지 전부 선택됩니다.) ->빌드작업을 리소스, 출력 디렉토리로 복사를 항상복사로 설정 후 솔루션 빌드
+3. nuget패키지 관리 - mahapps.metro, community.toolkit, newtonsoft.json, mqttnet
+4. app.xaml - resource, startup  , app.xaml.cs - startup함수 정의
+5. MainView.xaml ,MainView.xaml.cs - mahapps 설정
+6. MainViewModel.cs에서 communitytoolkit 설정
 
 #### 파이썬 AI + ASP.NET 연동
 
@@ -263,3 +281,9 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
     - 하드웨어,소프트웨어 전체 구조 회의
 
 ## 92일차(6/19)
+- MES 공정관리 시뮬레이션 
+    - MQTT Subscriber(WpfMqttSubApp) - mqtt 구독 , 구독한 데이터를 db에 넣기 위한 db연결설정, EntityFrameworkCore First 방식 , 설정파일
+    - WpfMrpSimulatorApp -Schedule , Setting 테이블에 넣을 데이터 입력 후 db에 저장하는 MrpSimulatorApp화면 설정
+
+## 93일차(6/20)
+    - MQTT Subscriber(WpfMqttSubApp) - 저장함수

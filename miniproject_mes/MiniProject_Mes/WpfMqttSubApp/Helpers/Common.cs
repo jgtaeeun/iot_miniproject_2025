@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace WpfMqttSubApp.Helpers
 {
-    public class Common
+    public static class Common
     {
         //DB연결 connectString
-        public static readonly string CONNSTR = "Server=localhost;Database=mydb;Uid=root;Pwd=12345;Charset=utf8";
+        public static readonly string CONNSTR = $"Server={App.configuration.Database.Server};Database={App.configuration.Database.Database};Uid={App.configuration.Database.User};Pwd={App.configuration.Database.Password};Charset=utf8";
 
     }
 }

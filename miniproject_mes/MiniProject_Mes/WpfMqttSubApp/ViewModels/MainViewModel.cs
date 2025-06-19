@@ -70,10 +70,10 @@ namespace WpfMqttSubApp.ViewModels
         public MainViewModel(IDialogCoordinator coordiantor)
         {
             this.dialogCoordinator = coordiantor;
-            BrokerHost = "210.119.12.110";
-            DBHost = "210.119.12.110";
+            BrokerHost = App.configuration.Mqtt.Broker;
+            DBHost = App.configuration.Database.Server;
             connection = new MySqlConnection();
-            TOPIC = "pknu/mes/data";
+            TOPIC = App.configuration.Mqtt.Topic;
 
         }
 
@@ -97,8 +97,8 @@ namespace WpfMqttSubApp.ViewModels
 
             //matt 클라이언트 접속 설정
             var mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(BrokerHost)
-                .WithClientId("MesMqttSub01")
+                .WithTcpServer(BrokerHost, App.configuration.Mqtt.Port)
+                .WithClientId(App.configuration.Mqtt.ClientId)
                 .WithCleanSession(true)
                 .Build();
 
