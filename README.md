@@ -159,11 +159,50 @@ https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
 
 
 ##### MQTT Subscriber [WpfMqttSubApp](./miniproject_mes/MiniProject_Mes/WpfMqttSubApp/)
-- WPF 과목(SMART HOME 실습)에서 사용했던 MQTT Subscriber 활용
-- DB 연결부분  수정 및  DB 저장부분 추가 
+- 서비스 실행 중 확인
+    - MySQL 실행 후 , cmd에서 telnet IPv4주소 3306
+        - <img src='./miniproject_mes/mysql실행확인.png' width=500>
+    - mqtt 실행 후, cmd에서 telnet IPv4주소 1883
+        - <img src='./miniproject_mes/mqtt실행확인.png' width=500>
 
+0. WPF 과목(SMART HOME 실습)에서 사용했던 MQTT Subscriber 활용 &  DB 연결부분  수정 및  DB 저장부분 추가 
 1. 솔루션-오른쪽마우스-추가-기존프로젝트 - iot_csharp_wpf_2025\day73\Day10Wpf\WpfMqttSubApp의 WpfMqttSubApp.csproj 파일 선택 - 솔루션 재빌드
-2. 
+2. DB 연결부분 수정 
+    - CheckResult.cs 모델 생성
+    - Helpers 폴더 내 Common.cs의 connectString의 스키마 수정
+    - Wpf프로젝트에서 EntityFrameworkCore First 방식
+        - nuget패키지 관리자 설치 - Microsoft.EntityFrameworkCore  8.0.x버전/ Microsoft.EntityFrameworkCore.Tools 8.0.x버전 / Pomelo.EntityFrameworkCore.Mysql 8.0버전
+        - 도구- nuget 패키지 관리자 - 패키지 관리자 콘솔 - 프로젝트 선택
+            ```shell
+            PM> dir
+            디렉터리: C:\Source\iot_miniproject_2025\miniproject_mes\MiniProject_Mes
+
+            PM> cd .\WpfMqttSubApp
+
+            PM> dir
+            디렉터리: C:\Source\iot_miniproject_2025\miniproject_mes\MiniProject_Mes\WpfMqttSubApp
+                                                                                                                                        
+            PM> Scaffold-DbContext "Server=localhost;Database=mydb;Uid=root;Pwd=12345;Charset=utf8;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models
+            Build started...
+            Build succeeded.
+            To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+            Using ServerVersion '9.2.0-mysql'.
+
+            ``` 
+        - Models폴더 내에 생성된 클래스 확인 
+    - MainViewModel.cs에 ConnectDB() 함수의 connectString 수정
+    
+3. mqtt 연결부분 수정
+    - topic 수정
+    - brokerHost 수정
+    - var data = JsonConvert.`DeserializeObject`<CheckResult>(payload);
+    - <img src='./miniproject_mes/mqtt구독확인.png' width=500>
+    - **json데이터 발행 시,  var jsonPayload = JsonConvert.`SerializeObject`(payload, Formatting.Indented);**
+    - **json데이터 구독 시,   var data = JsonConvert.`DeserializeObject`<모델>(payload);**
+
+3. DB 저장부분 추가 
+    - MainViewModel.cs에 SaveSensingData()함수
+
 
 ##### MrpSimulator [WpfMrpSimulator](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/)
 
@@ -213,3 +252,6 @@ https://github.com/user-attachments/assets/e829ff59-c63a-434e-a3e8-c93eb3e4846f
 
 - 파이널 프로젝트
     - 구매리스트 엑셀 작성 
+    - 하드웨어,소프트웨어 전체 구조 회의
+
+## 92일차(6/19)

@@ -10,9 +10,7 @@ namespace WpfMqttSubApp.Helpers
     public class Common
     {
         //DB연결 connectString
-        public static readonly string CONNSTR = "Server=localhost;Database=moviefinder;Uid=root;Pwd=12345;Charset=utf8";
+        public static readonly string CONNSTR = "Server=localhost;Database=mydb;Uid=root;Pwd=12345;Charset=utf8";
 
-
-   
     }
 }

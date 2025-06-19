@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Google.Protobuf.WellKnownTypes;
 using MahApps.Metro.Controls.Dialogs;
 using MQTTnet;
 using MySql.Data.MySqlClient;
@@ -14,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
+using WpfMqttSubApp.Helpers;
 using WpfMqttSubApp.Models;
 using ZstdSharp.Unsafe;
 
@@ -68,10 +70,10 @@ namespace WpfMqttSubApp.ViewModels
         public MainViewModel(IDialogCoordinator coordiantor)
         {
             this.dialogCoordinator = coordiantor;
-            BrokerHost = "210.119.12.52";
+            BrokerHost = "210.119.12.110";
             DBHost = "210.119.12.110";
             connection = new MySqlConnection();
-            TOPIC = "pknu/sh01/data";
+            TOPIC = "pknu/mes/data";
 
         }
 
@@ -96,6 +98,7 @@ namespace WpfMqttSubApp.ViewModels
             //matt 클라이언트 접속 설정
             var mqttClientOptions = new MqttClientOptionsBuilder()
                 .WithTcpServer(BrokerHost)
+                .WithClientId("MesMqttSub01")
                 .WithCleanSession(true)
                 .Build();
 
@@ -114,8 +117,7 @@ namespace WpfMqttSubApp.ViewModels
                 var payload = e.ApplicationMessage.ConvertPayloadToString(); //byte데이터를 utf-8문자열로 변환
             
                 //json으로 변경하여 db에저장하기 위한 과정
-                var data = JsonConvert.DeserializeObject<SensingInfo>(payload);
-                // Debug.WriteLine($"{data.COUNT} /{data.SENSING_DT}/{data.HUMID}/ {data.LIGHT}");
+                var data = JsonConvert.DeserializeObject<CheckResult>(payload);
                 SaveSensingData(data);
 
                 //richtextbox에 데이터 띄우기
@@ -129,9 +131,9 @@ namespace WpfMqttSubApp.ViewModels
         }
 
 
-        private async Task SaveSensingData(SensingInfo data)
+        private async Task SaveSensingData(CheckResult data)
         {
-            string query = " SET time_zone = 'Asia/Seoul';INSERT INTO sensing_datas(Light,Rain,Temp,Humid,Fan,Vulernability,Real_Light,ChaimBell,Sensing_date) VALUES (@Light, @Rain,@Temp ,@Humid,@Fan,@Vulernability,@Real_Light,@ChaimBell,now())";
+            string query = "INSERT INTO process(schIdx,prcCd,prcDate,prcLoadTime,prcStartTime,prcEndTime,prcFacilityId,prcResult,regDt) VALUES (@schIdx,@prcCd,@prcDate,@prcLoadTime,@prcStartTime,@prcEndTime,@prcFacilityId,@prcResult,@regDt)";
             Debug.WriteLine(connection.State);
             Debug.WriteLine(System.Data.ConnectionState.Open);
            
@@ -140,15 +142,16 @@ namespace WpfMqttSubApp.ViewModels
                 if (connection.State == System.Data.ConnectionState.Open)
                 {
                     using var cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@Light", data.L);
-                    cmd.Parameters.AddWithValue("@Rain", data.R);
-                    cmd.Parameters.AddWithValue("@Temp", data.T);
-                    cmd.Parameters.AddWithValue("@Humid", data.H);
-                    cmd.Parameters.AddWithValue("@Fan", data.F);
-                    cmd.Parameters.AddWithValue("@Vulernability", data.V);
-                    cmd.Parameters.AddWithValue("@Real_Light", data.RL);
-                    cmd.Parameters.AddWithValue("@ChaimBell", data.CB);
-  
+                   // cmd.Parameters.AddWithValue("@schIdx", data.L);
+                    cmd.Parameters.AddWithValue("@prcCd", "MesMqttSub01");
+                    cmd.Parameters.AddWithValue("@prcDate", data.TimeStamp);
+                    cmd.Parameters.AddWithValue("@prcLoadTime", 2);
+                    cmd.Parameters.AddWithValue("@prcStartTime", DateTime.Parse(data.TimeStamp).AddSeconds(-2).ToString("HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@prcEndTime", DateTime.Parse(data.TimeStamp).ToString("HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@prcFacilityId","IOT01");
+                    cmd.Parameters.AddWithValue("@prcResult", data.Result == "FALI" ? false: true);
+                    cmd.Parameters.AddWithValue("@regDt", data.TimeStamp);
+
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -168,7 +171,7 @@ namespace WpfMqttSubApp.ViewModels
                 await this.dialogCoordinator.ShowMessageAsync(this, "db연결합니다.", "db연결실패");
                 return;
             }
-            _connString = $"Server={DBHost};Database=smarthome;Uid=root;Pwd=12345;Charset=utf8";
+            _connString = Common.CONNSTR;
             await ConnectDatabaseServer();
           
         }
