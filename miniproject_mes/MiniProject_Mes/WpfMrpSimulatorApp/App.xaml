@@ -2,7 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WpfMrpSimulatorApp"
-            Startup="Application_Startup">
+             xmlns:vm="clr-namespace:WpfMrpSimulatorApp.ViewModels"
+             xmlns:views="clr-namespace:WpfMrpSimulatorApp.Views"
+             Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
@@ -12,6 +14,17 @@
             <!-- Theme setting -->
             <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Emerald.xaml" />
         </ResourceDictionary.MergedDictionaries>
+
+      
+        <DataTemplate DataType="{x:Type vm:ScheduleViewModel}">
+                <views:ScheduleView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MonitoringViewModel}">
+            <views:MonitoringView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingViewModel}">
+            <views:SettingView/>
+        </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

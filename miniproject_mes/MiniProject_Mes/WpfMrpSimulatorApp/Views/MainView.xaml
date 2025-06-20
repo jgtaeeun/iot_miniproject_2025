@@ -6,25 +6,98 @@
         xmlns:vm ="clr-namespace:WpfMrpSimulatorApp.ViewModels"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconpacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:Dialog ="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:WpfMrpSimulatorApp.Views"
         mc:Ignorable="d"
-        Title="Mrp Simulator" Height="450" Width="800">
+        Title="Mrp Simulator" Height="450" Width="800" MinHeight="230" MinWidth="480"
+        Dialog:DialogParticipation.Register="{Binding}"
+        Closing="MetroWindow_Closing">
+    <mah:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <iconpacks:PackIconMaterial Kind="StoreCog" Foreground="White" Margin="5,7,0,0" Width="24"></iconpacks:PackIconMaterial>
+        </DataTemplate>
+    </mah:MetroWindow.IconTemplate>
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
     <Grid Margin="5">
         <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
-            <RowDefinition Height="7*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <!--ui구성-->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
-            <Button  Content="Schedule" Command="{Binding ScheduleCommand}" Margin="0,0,10,0"></Button>
-            <Button  Content="Monitoring" Command="{Binding MonitoringCommand}" Margin="0,0,10,0"></Button>
-            <Button  Content="Analysis" Command="{Binding AnalysisCommand}" Margin="0,0,10,0"></Button>
-            <Button  Content="Setting"  Command="{Binding SettingCommand}"></Button>
-        </StackPanel>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" >
+                <Button  Content="기본설정" Command="{Binding SettingCommand}" Margin="5" FontSize="12"  Background="Orange">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding}" Foreground="White" VerticalAlignment="Center"></Label>
+                                <iconpacks:PackIconVaadinIcons Kind="Cogs" Foreground="White" ></iconpacks:PackIconVaadinIcons>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+                <Button  Content="공정계획" Command="{Binding ScheduleCommand}" Margin="5" FontSize="12"  Background="DeepSkyBlue">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding}" Foreground="White" VerticalAlignment="Center"></Label>
+                                <iconpacks:PackIconForkAwesome Kind="Calendar" Foreground="White" ></iconpacks:PackIconForkAwesome>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+                <Button  Content="모니터링" Command="{Binding MonitoringCommand}" Margin="5" FontSize="12"  Background="YellowGreen">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding}" Foreground="White" VerticalAlignment="Center"></Label>
+                                <iconpacks:PackIconPixelartIcons Kind="Monitor" Foreground="White" ></iconpacks:PackIconPixelartIcons>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+                <Button  Content="공정보고" Command="{Binding AnalysisCommand}" Margin="5" FontSize="12"  Background="LightPink">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding}" Foreground="White" VerticalAlignment="Center"></Label>
+                                <iconpacks:PackIconLucide Kind="NotebookPen" Foreground="White" ></iconpacks:PackIconLucide>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+
+            </StackPanel>
+            <Button Grid.Column="1" Content="앱 종료" Margin="5" FontSize="12"  Background="SlateGray" Command="{Binding AppExitCommand}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding}" Foreground="White" VerticalAlignment="Center"></Label>
+                            <iconpacks:PackIconFeatherIcons Kind="XCircle" Foreground="White" ></iconpacks:PackIconFeatherIcons>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </Grid>
+        
 
         <ContentControl Grid.Row="1"  Content="{Binding CurrentViewModel}" />
+
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock Text="{Binding}" />
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding CurrentTime}"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </mah:MetroWindow>

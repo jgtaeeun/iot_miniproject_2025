@@ -1,5 +1,4 @@
-﻿using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
+﻿using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +16,17 @@ using System.Windows.Shapes;
 namespace WpfMrpSimulatorApp.Views
 {
     /// <summary>
-    /// MainView.xaml에 대한 상호 작용 논리
+    /// MonitoringView.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class ScheduleView : UserControl
+    public partial class MonitoringView : UserControl
     {
-      
-        public ScheduleView()
+     
+        public MonitoringView()
         {
             InitializeComponent();
         }
 
+     
 
     }
 }

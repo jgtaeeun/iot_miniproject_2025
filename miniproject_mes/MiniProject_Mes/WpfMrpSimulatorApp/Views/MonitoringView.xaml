@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="WpfMrpSimulatorApp.Views.MonitoringView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:iconpacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:local="clr-namespace:WpfMrpSimulatorApp.Views"
+        mc:Ignorable="d"
+      >
+
+    <Grid Margin="5">
+        <!--HMI-->
+        <Canvas>
+            <Image Source="/Resources/belt.png" Canvas.Bottom="5" Height="100" Canvas.Top="102"  Canvas.Left="45" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
+            <Image x:Name="GearStart" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Left="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
+            <Image x:Name="GearEnd" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Right="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="454"></Image>
+            <Image x:Name="SortingSensor" Height="45" Width="45" Source="/Resources/sensor.png" Canvas.Right="90" Canvas.Left="414" HorizontalAlignment="Left" VerticalAlignment="Center" ></Image>
+            <Rectangle x:Name="Product" Height="40" Width="40" Stroke="Black" Fill="{Binding ProductBrush}" Canvas.Left="127" Canvas.Top="61" HorizontalAlignment="Left" VerticalAlignment="Center"></Rectangle>
+        </Canvas>
+
+
+    </Grid>
+
+</UserControl>

@@ -655,6 +655,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\SettingView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\ScheduleView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

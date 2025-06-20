@@ -24,5 +24,12 @@ namespace WpfMrpSimulatorApp.Views
         {
             InitializeComponent();
         }
+
+    
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //x 창닫기 버튼으로 꺼지지 않음
+            e.Cancel = true;    
+        }
     }
 }

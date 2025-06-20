@@ -23,10 +23,11 @@ namespace WpfMrpSimulatorApp
             //config.json 파일 로드
             configuration = ConfigLoader.Load();
 
+            Common.DIALOGCOORDINATOR = DialogCoordinator.Instance;
 
             //view화면 로드 후 화면 띄우기
           
-            var viewModel = new MainViewModel();
+            var viewModel = new MainViewModel(Common.DIALOGCOORDINATOR);
             var view = new MainView
             {
                 DataContext = viewModel,

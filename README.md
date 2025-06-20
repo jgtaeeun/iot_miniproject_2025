@@ -231,6 +231,84 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
 4. app.xaml - resource, startup  , app.xaml.cs - startup함수 정의
 5. MainView.xaml ,MainView.xaml.cs - mahapps 설정
 6. MainViewModel.cs에서 communitytoolkit 설정
+7. MainView.xaml 디자인 - 메뉴탭
+    - <img src='./miniproject_mes/mrs_mainview.png' width=500>
+8. Common.cs 생성 - 프로젝트 내에서 공통으로 사용하는 정적 클래스 
+9. DIALOGCOORDINATOR 
+    - App.xaml.cs에서 코드 추가
+        ```cs
+        Common.DIALOGCOORDINATOR = DialogCoordinator.Instance;
+
+        //view화면 로드 후 화면 띄우기
+
+        var viewModel = new MainViewModel(Common.DIALOGCOORDINATOR);
+        ```
+    - MainView.xaml에서 코드 추가
+        ```cs
+        xmlns:Dialog ="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        Dialog:DialogParticipation.Register="{Binding}"
+        ```
+    - MainViewModel.cs에서 코드 추가
+        ```cs
+        private IDialogCoordinator _dialogCoordinator;
+
+        public MainViewModel(IDialogCoordinator coordinator)
+        {
+            this._dialogCoordinator = coordinator;
+        }
+
+        [RelayCommand]
+        public async Task AppExit()
+        {
+            
+            var result = await this._dialogCoordinator.ShowMessageAsync(this, "종료확인", "종료하시겠습니까?", MessageDialogStyle.AffirmativeAndNegative);
+            if (result == MessageDialogResult.Affirmative)
+            {
+                Application.Current.Shutdown();
+            }
+            else
+            {
+                return;
+            }
+        }
+        ```
+10. 버튼클릭에 따른 뷰 컨트롤
+    - MainView.xaml에서 ContentControl 태그 내 바인딩
+        ```cs
+        <ContentControl Grid.Row="1"  Content="{Binding CurrentViewModel}" />
+        ```
+    - MainViewModel.cs에서 버튼함수 내 뷰 전환
+        ```cs
+        [RelayCommand]
+        public void  Setting()
+        {
+            CurrentViewModel = new SettingViewModel();
+        }
+        ```
+    - 여러가지 뷰, 뷰모델  - SettingView, MonitoringView, ScheduleView, ReportView
+        ```
+        WpfMrpSimulatorApp
+        ├── views
+        │   ├── MainView.xaml
+        │   ├── ScheduleView.xaml
+        │   ├── SettingView.xaml
+        │   ├── ReportView.xaml
+        │   └── MonitoringView.xaml
+        └── viewmodels
+            ├── MainView.xaml.cs
+            ├── ScheduleView.xaml.cs
+            ├── SettingView.xaml.cs
+            ├── ReportView.xaml.cs
+            └── MonitoringView.xaml.cs
+        ```
+    - app.xaml에서 DataTemplate 
+        ```cs
+        <DataTemplate DataType="{x:Type vm:SettingViewModel}">
+            <views:SettingView/>
+        </DataTemplate>
+        ```
+11. SettingView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩
+
 
 #### 파이썬 AI + ASP.NET 연동
 
@@ -283,7 +361,14 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
 ## 92일차(6/19)
 - MES 공정관리 시뮬레이션 
     - MQTT Subscriber(WpfMqttSubApp) - mqtt 구독 , 구독한 데이터를 db에 넣기 위한 db연결설정, EntityFrameworkCore First 방식 , 설정파일
-    - WpfMrpSimulatorApp -Schedule , Setting 테이블에 넣을 데이터 입력 후 db에 저장하는 MrpSimulatorApp화면 설정
 
 ## 93일차(6/20)
+- MES 공정관리 시뮬레이션 
+    - DIALOGCOORDINATOR 
+    - WpfMrpSimulatorApp - ContentControl
+    - WpfMrpSimulatorApp -Setting 테이블에 넣을 데이터 입력 후 db에 저장하는 SettingView.xaml 디자인
+    
+    
+## 94일차(6/23)
+- MES 공정관리 시뮬레이션 
     - MQTT Subscriber(WpfMqttSubApp) - 저장함수
