@@ -318,6 +318,10 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
 https://github.com/user-attachments/assets/aa2e2af2-6993-4727-9d1b-5fd924a1e988
 
 
+https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
+
+
+
 12. ScheduleView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩
 
 #### 파이썬 AI + ASP.NET 연동
