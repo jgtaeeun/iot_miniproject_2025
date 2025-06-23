@@ -307,12 +307,18 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
             <views:SettingView/>
         </DataTemplate>
         ```
-11. SettingView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩
-
-
+11. SettingView.xaml 디자인 + SettingView.xaml.cs db연동 속성 바인딩
+    - ui디자인, 속성 바인딩
+    - Setting 모델 생성
+    - Settings, SelectedSettings 속성 생성
+    - CRUD DB연결
+    - 신규등록 시 -  신규,저장버튼 활성화 & basicCode 활성화
+    - 업데이트 시 - 신규, 저장, 삭제버튼 활성화 & basicCode 비활성화
+    
 https://github.com/user-attachments/assets/aa2e2af2-6993-4727-9d1b-5fd924a1e988
 
 
+12. ScheduleView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩
 
 #### 파이썬 AI + ASP.NET 연동
 
@@ -375,4 +381,5 @@ https://github.com/user-attachments/assets/aa2e2af2-6993-4727-9d1b-5fd924a1e988
     
 ## 94일차(6/23)
 - MES 공정관리 시뮬레이션 
+    - WpfMrpSimulatorApp - CRUD 
     - MQTT Subscriber(WpfMqttSubApp) - 저장함수
