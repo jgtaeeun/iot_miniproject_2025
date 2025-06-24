@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -141,8 +142,9 @@ namespace WpfMrpSimulatorApp.ViewModels
                         var basicCode = reader.GetString("basicCode");
                         var codeName = reader.GetString("codeName");
                         var codeDesc = reader.GetString("codeDesc");
-                        var reDt = reader.GetDateTime("reDt").ToString();
-                        var modDt = reader.IsDBNull(reader.GetOrdinal("modDt"))  ? null  : reader.GetDateTime(reader.GetOrdinal("modDt")).ToString();
+                        var reDt = reader.GetDateTime("reDt");
+                        var modDt =  reader.IsDBNull(reader.GetOrdinal("modDt"))    ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("modDt"));
+
 
 
                         settings.Add(new Setting

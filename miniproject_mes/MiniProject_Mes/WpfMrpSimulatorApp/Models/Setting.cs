@@ -1,22 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WpfMrpSimulatorApp.Models
+namespace WpfMrpSimulatorApp.Models;
+
+public partial class Setting
 {
-    public class Setting
-    {
-        [Key]
-        public string BasicCode { get; set; }
+    public string BasicCode { get; set; } = null!;
 
-        [Required]  
-        public string CodeName { get; set; }    
-        public string? CodeDesc { get; set; }
-        public string? ReDt { get; set; }
-        public string? ModDt { get; set; } 
+    /// <summary>
+    /// 코드명
+    /// </summary>
+    public string CodeName { get; set; } = null!;
 
-    }
+    /// <summary>
+    /// 코드설명
+    /// </summary>
+    public string? CodeDesc { get; set; }
+
+    /// <summary>
+    /// 최초등록
+    /// </summary>
+    public DateTime? ReDt { get; set; }
+
+    /// <summary>
+    /// 수정일
+    /// </summary>
+    public DateTime? ModDt { get; set; }
 }

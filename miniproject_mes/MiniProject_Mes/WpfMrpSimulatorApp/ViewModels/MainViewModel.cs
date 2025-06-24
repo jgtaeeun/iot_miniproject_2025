@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using WpfMrpSimulatorApp.Helpers;
+using WpfMrpSimulatorApp.Models;
 using WpfMrpSimulatorApp.Views;
 
 namespace WpfMrpSimulatorApp.ViewModels
@@ -24,6 +25,7 @@ namespace WpfMrpSimulatorApp.ViewModels
         // 메세지박스대신에 다이얼로그로 표현하기 위해서
         private IDialogCoordinator _dialogCoordinator;
 
+     
 
         public MainViewModel()
         {

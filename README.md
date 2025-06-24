@@ -307,7 +307,7 @@ https://github.com/user-attachments/assets/c13cf101-3486-4067-b991-64c1641893ee
             <views:SettingView/>
         </DataTemplate>
         ```
-11. SettingView.xaml 디자인 + SettingView.xaml.cs db연동 속성 바인딩
+11. SettingView.xaml 디자인 + SettingView.xaml.cs db연동 속성 바인딩 (MySqlConnection,  MySqlCommand  방식 )
     - ui디자인, 속성 바인딩
     - Setting 모델 생성
     - Settings, SelectedSettings 속성 생성
@@ -322,7 +322,117 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
 
 
 
-12. ScheduleView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩
+12. ScheduleView.xaml 디자인 + ScheduleView.xaml.cs db연동 속성 바인딩  (EntityFrameworkCore DB First 방식 )
+    0. LINQ to Entities
+        - LINQ to Entities는 Entity Framework에서 C# 코드로 SQL을 작성하지 않고, LINQ 문법을 사용해 데이터베이스를 질의(Query)하는 방법
+        - from, where, select, join 같은 LINQ 구문을 사용
+        - 모든 C# 함수 사용 불가 ,사용자 정의 메서드는 번역 불가
+        ```cs
+        //Orders 테이블과 Customers 테이블을 CustomerId로 조인
+        var results = db.Orders
+                    .Join(db.Customers,
+                        order => order.CustomerId,
+                        customer => customer.Id,
+                        (order, customer) => new {
+                            OrderId = order.Id,
+                            CustomerName = customer.Name,
+                            OrderDate = order.OrderDate
+                        });
+        ```
+
+
+    1. 디자인
+        ```xml
+        <mah:NumericUpDown Grid.Row="3" Margin="2" 
+            mah:TextBoxHelper.AutoWatermark="True" 
+            mah:TextBoxHelper.Watermark="로드 시간(초)"
+            mah:TextBoxHelper.WatermarkAlignment="Left"
+            Minimum="0" Maximum="100"
+            Value="{Binding SelectedSchedule.LoadTime}" />
+
+        <mah:TimePicker Margin="2"  Width="144"
+         mah:TextBoxHelper.AutoWatermark="True" 
+         mah:TextBoxHelper.Watermark="시작 시간"
+         SelectedDateTime="{Binding SelectedSchedule.SchStartTime}"/>
+        ```
+    2. db연동
+        - DB 스키마가 이미 존재
+        - NuGet 패키지 설치 (역시 버전 통일 필수) - entityframeworkcore,entitiyframeworkcore tools, pomelo
+        - 패키지 관리자 콘솔
+            ```
+            Scaffold-DbContext "Server=localhost;Database=mydb;Uid=root;Pwd=12345;Charset=utf8;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -Force -Context IotDbContext
+            ```
+        - EntityFrameworkCore DbContext로 데이터 가져오기
+            ```cs
+            //ScheduleViewModel.cs
+            
+            private readonly IotDbContext _dbContext;
+            
+            //dataGrid Schedules 데이터
+            private List<Schedule> _schedules;
+            public List<Schedule>  Schedules
+            {
+                get => _schedules;
+                set => SetProperty(ref _schedules, value);
+            }
+
+            public ScheduleViewModel(IDialogCoordinator coordinator)
+            {
+                this._dbContext = new IotDbContext();
+                LoadGridFromDb();
+            }
+
+            private async Task LoadGridFromDb()
+            {
+                try
+                {
+                    Schedules = _dbContext.Schedules.ToList();
+                }
+                catch (Exception ex)
+                {
+                    await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message);
+                }
+
+            }
+            ```
+            - <img src='./miniproject_mes/wpf프로젝트에서 dbcontext로 데이터가져오기.png' width=500>
+        - Settings테이블의 BasicCode와 Schedule테이블의 PlantCode를 join =>Setting테이블의 CodeName을 ScheduleNew모델에서 PlantName으로 받아 써야함 & Setting테이블의 CodeDesc을 Schedule테이블에서 SchFacilityId으로 받아 써야함
+            ```cs
+            using (var db = new IotDbContext())
+            {
+                var results = db.Schedules
+                            .Join(db.Settings,
+                            sch => sch.PlantCode,
+                            setting => setting.BasicCode,
+                            (sch, setting) => new ScheduleNew
+                            {
+                                    SchIdx = sch.SchIdx,
+                                    PlantCode = sch.PlantCode,
+                                    PlantName = setting.CodeName,  // 공장 이름 가져오기
+                                    SchDate = sch.SchDate,
+                                    LoadTime = sch.LoadTime,
+                                    SchStartTime = sch.SchStartTime,
+                                    SchEndTime = sch.SchEndTime,
+                                    SchAmount = sch.SchAmount,
+
+                                    SchFacilityId = setting.CodeDesc.Replace("(","").Replace(")","").Substring(4),
+
+                                    RegDt = sch.RegDt,
+                                    ModDt = sch.ModDt,
+                                })
+                            ;
+                Schedules = new ObservableCollection<ScheduleNew>(results);
+
+                var distinctCodes = results
+                                    .GroupBy(x => x.PlantCode)
+                                    .Select(g => new KeyValuePair<string, string>(g.Key, g.First().PlantName));
+
+                ObservableCollection<KeyValuePair<string, string>> plantCodes = new ObservableCollection<KeyValuePair<string, string>>(distinctCodes);
+
+                PlantList = plantCodes;
+            }
+            ```
+            - <img src='./miniproject_mes/schedule뷰에서 db연동.png' width =500>   
 
 #### 파이썬 AI + ASP.NET 연동
 
@@ -381,9 +491,26 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
     - DIALOGCOORDINATOR 
     - WpfMrpSimulatorApp - ContentControl
     - WpfMrpSimulatorApp -Setting 테이블에 넣을 데이터 입력 후 db에 저장하는 SettingView.xaml 디자인
-    
+
+- 파이널 프로젝트
+    - ui 와이어 프레임 작성
     
 ## 94일차(6/23)
 - MES 공정관리 시뮬레이션 
-    - WpfMrpSimulatorApp - CRUD 
-    - MQTT Subscriber(WpfMqttSubApp) - 저장함수
+    - WpfMrpSimulatorApp - Setting뷰  CRUD 
+
+- 파이널 프로젝트
+    - ui 와이어 프레임 세부기능 작성
+
+## 95일차(6/24)
+- MES 공정관리 시뮬레이션 
+    - WpfMrpSimulatorApp - Schedule뷰 ui디자인 +  CRUD 
+
+- 파이널 프로젝트
+    - 하드웨어별 역할,기능 정리
+    - 주제,주제선정계기, 기대효과
+    - 시스템 구조도
+
+
+
+- MQTT Subscriber(WpfMqttSubApp) - 저장함수
