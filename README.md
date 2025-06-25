@@ -653,7 +653,11 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
                         SelectedDate="{Binding SelectedSchedule.SchDate,
                         Converter={StaticResource DateOnlyToDateTimeConverter}}" />
                 ```
-     
+                
+
+https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
+
+
 13. MonitoringView.xaml 디자인
     - iconpack namespace 못 찾는다고 에러 뜰 경우, 아래의 코드 입력
         ```
