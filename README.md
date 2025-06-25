@@ -396,16 +396,17 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
             }
             ```
             - <img src='./miniproject_mes/wpf프로젝트에서 dbcontext로 데이터가져오기.png' width=500>
-        - Settings테이블의 BasicCode와 Schedule테이블의 PlantCode를 join =>Setting테이블의 CodeName을 ScheduleNew모델에서 PlantName으로 받아 써야함 & Setting테이블의 CodeDesc을 Schedule테이블에서 SchFacilityId으로 받아 써야함
+    3. 속성, 바인딩 - dbcontext로
+        - Settings테이블의 BasicCode와 Schedule테이블의 PlantCode를 join => Setting테이블의 CodeName을 ScheduleNew모델에서 PlantName으로 받아 써야함  => dataGrid의 PlantName 바인딩
             ```cs
             using (var db = new IotDbContext())
             {
-                var results = db.Schedules
-                            .Join(db.Settings,
-                            sch => sch.PlantCode,
-                            setting => setting.BasicCode,
-                            (sch, setting) => new ScheduleNew
-                            {
+                 var results = db.Schedules
+                                .Join(db.Settings,
+                                sch => sch.PlantCode,
+                                setting => setting.BasicCode,
+                                (sch, setting) => new ScheduleNew
+                                {
                                     SchIdx = sch.SchIdx,
                                     PlantCode = sch.PlantCode,
                                     PlantName = setting.CodeName,  // 공장 이름 가져오기
@@ -414,26 +415,252 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
                                     SchStartTime = sch.SchStartTime,
                                     SchEndTime = sch.SchEndTime,
                                     SchAmount = sch.SchAmount,
-
-                                    SchFacilityId = setting.CodeDesc.Replace("(","").Replace(")","").Substring(4),
-
+                                    SchFacilityId = sch.SchFacilityId,
                                     RegDt = sch.RegDt,
                                     ModDt = sch.ModDt,
                                 })
-                            ;
+              ;
+                //dataGrid 데이터
                 Schedules = new ObservableCollection<ScheduleNew>(results);
-
-                var distinctCodes = results
-                                    .GroupBy(x => x.PlantCode)
-                                    .Select(g => new KeyValuePair<string, string>(g.Key, g.First().PlantName));
-
-                ObservableCollection<KeyValuePair<string, string>> plantCodes = new ObservableCollection<KeyValuePair<string, string>>(distinctCodes);
-
-                PlantList = plantCodes;
             }
             ```
             - <img src='./miniproject_mes/schedule뷰에서 db연동.png' width =500>   
 
+        - 시작시간, 종료시간이 TimePicker로 구현이 어려워서 comboBox로 변경 -> TimeOption모델 클래스 생성(보여지는 값은 Display, 코드상 계산되는 값은 Time) -> TimeOption 타입의 속성 읽기전용으로 정의 -> 뷰에서 바인딩
+            ```cs
+            //SchduleViewModel.cs
+
+            //시작시간, 종료시간 속성
+            public ObservableCollection<TimeOption> TimeOptions
+            {
+                get;
+            }
+            =new ObservableCollection<TimeOption>(
+                
+                Enumerable.Range(0,24).Select(h=>new TimeOption
+                {
+                    Time=new TimeOnly(h,0),
+                    Display = $"{h:00}:00"
+                }
+                
+                )
+            );
+            ```
+
+            ```xml
+            <!--SchduleView.xaml-->
+            <StackPanel Grid.Row="3" Margin="0" Orientation="Horizontal">
+                <ComboBox Margin="2"  Width="144"
+                    mah:TextBoxHelper.AutoWatermark="True" 
+                    mah:TextBoxHelper.Watermark="시작 시간"
+                    ItemsSource="{Binding TimeOptions}"
+                    DisplayMemberPath="Display"
+                    SelectedValuePath="Time"
+                    SelectedValue="{Binding SelectedSchedule.SchStartTime}"/>
+                <ComboBox Margin="2"  Width="144"
+                    mah:TextBoxHelper.AutoWatermark="True" 
+                    mah:TextBoxHelper.Watermark="종료 시간"
+                    ItemsSource="{Binding TimeOptions}"
+                    DisplayMemberPath="Display"
+                    SelectedValuePath="Time"
+                    SelectedValue="{Binding SelectedSchedule.SchEndTime}"/>
+            </StackPanel>
+            ```
+            - <img src='./miniproject_mes/C#문법읽기쓰기다양한버전.png' width=500>
+            - [ScheduleView 콤보박스 itemSource 바인딩](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/ScheduleView.xaml)
+            - [TimeOption모델 클래스](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Helpers/TimeOption.cs)
+            - [C#문법읽기](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/ScheduleViewModel.cs)
+    4. 플랜트코드 ,설비코드 콤보박스 itemSource
+        - PLT11111-강서공장-강서1설비공장 , PLT22222-강서공장-강서2공정공장 이와 같이 BasicCode-CodeName-CodeDesc가 있을 경우, 콤보박스에 강서공장이 1개만 나타나게 하려면 BasicCode가 포함되지 않게 되어서 BasicCode를 써야하는데 없어서 문제가 됨.
+        - 해결책으로 아래와 같이 정리함
+            - DataGrid의 PlantName은 앞서 했던 Setting의 BasicCode와 Schedule의 PlantCode로 join시켜 ScheduleNew모델 클래스의 속성  PlantName에 할당해서 바인딩함.
+            - GroupBox의 플랜트코드 콤보박스 - (변경전) 강서공장 => (변경후) 강서2공정공장 
+            - GroupBox의 설비코드 콤보박스 -  (변경전) 강서2공정공장  => (변경후) 설비 또는 공정
+                ```cs
+                //플랜트코드 콤보박스
+                    var i = _dbContext.Settings.ToList();
+                    var plantGroups = i
+                                        .GroupBy(x => x.BasicCode)
+                                        .Select(g => new PlantGroup
+                                        {
+                                            BasicCode = g.Key,
+                                            CodeDesc = g.First().CodeDesc     // 마찬가지로 CodeDesc 하나
+                                        })
+                                    .OrderBy(pg => pg.CodeDesc)  // CodeDesc 기준 오름차순 정렬
+                                    .ToList();
+
+
+                    PlantList = new ObservableCollection<PlantGroup>(plantGroups);
+
+                    //설비코드 콤보박스
+                    SchFacilityIdList = new ObservableCollection<string>
+                    {
+                        "설비" , "공정"
+                    };
+                ```
+            - [ScheduleView.xaml의 콤보박스 바인딩](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/ScheduleView.xaml)
+            - [ScheduleViewModel.cs의 속성, dbcontext로 데이터 가져오기](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/ScheduleViewModel.cs)
+            - [PlantGroup모델](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Helpers/PlantGroup.cs)
+    5. CRUD - DbContext로
+        - delete
+            ```cs
+                [RelayCommand]
+                public async Task Remove()
+
+                {
+                    if (SelectedSchedule == null)
+                    {
+                        await this._dialogCoordinator.ShowMessageAsync(this, "알림", "삭제대상 선택하세요!!", MessageDialogStyle.Affirmative);
+                        return;
+                    }
+
+
+
+                    var result = await this._dialogCoordinator.ShowMessageAsync(this, "삭제확인", "삭제하시겠습니까?", MessageDialogStyle.AffirmativeAndNegative);
+                    if (result == MessageDialogResult.Affirmative)
+                    {
+                        try
+                        {
+
+                            //db 삭제 쿼리
+                            using (var db = new IotDbContext())
+                            {
+                                var entity = db.Schedules.Find(SelectedSchedule.SchIdx);
+                                if (entity != null)
+                                {
+                                    db.Schedules.Remove(entity);
+                                    db.SaveChanges();
+                                    await this._dialogCoordinator.ShowMessageAsync(this, "삭제", "데이터가 삭제되었습니다.");
+                                }
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            await this._dialogCoordinator.ShowMessageAsync(this, "오류",ex.Message);
+                        }
+
+                    }
+                    else
+                    {
+
+                        return;
+                    }
+                }
+            ```
+        - insert/update
+            ```CS
+            [RelayCommand]
+            public async Task Save()
+            {
+                if (SelectedSchedule.PlantCode == null || SelectedSchedule ==null)
+                {
+                    await this._dialogCoordinator.ShowMessageAsync(this, "알림", "데이터 입력하세요!!", MessageDialogStyle.Affirmative);
+                    return;
+                }
+
+                try
+                {
+                    using (var db = new IotDbContext())
+                    {
+                    // insert , update분류 필요
+                        var entity = db.Schedules.Find(SelectedSchedule.SchIdx);
+                        if (entity != null)
+                        {
+                            //update
+                            entity.PlantCode = SelectedSchedule.PlantCode;
+                            entity.SchDate = SelectedSchedule.SchDate;
+                            entity.LoadTime = SelectedSchedule.LoadTime;
+                            entity.SchStartTime = SelectedSchedule.SchStartTime;
+                            entity.SchEndTime = SelectedSchedule.SchEndTime;
+                            entity.SchAmount = SelectedSchedule.SchAmount;
+                            entity.SchFacilityId = SelectedSchedule.SchFacilityId;
+                            entity.ModDt = DateTime.Now;
+                            
+                            if (entity.PlantCode != null)
+                            {
+                                db.SaveChanges();
+                                await this._dialogCoordinator.ShowMessageAsync(this, "수정", "데이터가 수정되었습니다.");
+                            }
+                            else
+                            {
+                                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "플랜트코드는 필수입니다.");
+                            }
+                        }
+                        else
+                        {
+                            //insert
+                            var newSchedule = new Schedule
+                            {
+                                // 필요한 필드 값 채우기
+                                PlantCode = SelectedSchedule.PlantCode,
+                                SchDate = SelectedSchedule.SchDate,
+                                LoadTime = SelectedSchedule.LoadTime,
+                                SchStartTime = SelectedSchedule.SchStartTime,
+                                SchEndTime = SelectedSchedule.SchEndTime,
+                                SchAmount = SelectedSchedule.SchAmount,
+                                SchFacilityId = SelectedSchedule.SchFacilityId,
+                                RegDt = DateTime.Now
+                            };
+
+                            if (newSchedule.PlantCode != null)
+                            {
+                                db.Schedules.Add(newSchedule);
+                                db.SaveChanges();
+
+                                await this._dialogCoordinator.ShowMessageAsync(this, "저장", "데이터가 저장되었습니다.");
+                            }
+                            else
+                            {
+                                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "플랜트코드는 필수입니다.");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message);
+
+                }
+            }
+            ```
+        - DateOnly와 DateTime 간의 변환 
+            - IValueConverter 구현 클래스
+                ```CS
+                public class DateOnlyToDateTimeConverter : IValueConverter
+                {
+                    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+                    {
+                        if (value is DateOnly dateOnly)
+                            return new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day);
+                        return null;
+                    }
+
+                    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+                    {
+                        if (value is DateTime dateTime)
+                            return DateOnly.FromDateTime(dateTime);
+                        return null;
+                    }
+                }
+                ```
+            - ScheduleView.xaml에서 DatePicker
+                ```xml
+                <DatePicker Margin="2"  Width="144"
+                        mah:TextBoxHelper.AutoWatermark="True" 
+                        mah:TextBoxHelper.Watermark="스케줄 일자"
+                        SelectedDateFormat="Short"                                
+                        SelectedDate="{Binding SelectedSchedule.SchDate,
+                        Converter={StaticResource DateOnlyToDateTimeConverter}}" />
+                ```
+     
+13. MonitoringView.xaml 디자인
+    - iconpack namespace 못 찾는다고 에러 뜰 경우, 아래의 코드 입력
+        ```
+        xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Material"
+        ```
+    - _dialogCoordinator 속성 [MonitoringView.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/MonitoringView.xaml) [ MonitoringViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs) 
+    - 페이지이동 [MainViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MainViewModel.cs) [App.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/App.xaml)
 #### 파이썬 AI + ASP.NET 연동
 
 
@@ -504,12 +731,20 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
 
 ## 95일차(6/24)
 - MES 공정관리 시뮬레이션 
-    - WpfMrpSimulatorApp - Schedule뷰 ui디자인 +  CRUD 
+    - WpfMrpSimulatorApp - Schedule뷰 ui디자인 +  CRUD 중 R 
 
 - 파이널 프로젝트
     - 하드웨어별 역할,기능 정리
     - 주제,주제선정계기, 기대효과
     - 시스템 구조도
+
+
+## 96일차(6/25)
+- MES 공정관리 시뮬레이션 
+    - WpfMrpSimulatorApp - Schedule뷰 ui디자인 +  CRUD 중 CUD 
+    - WpfMrpSimulatorApp - MonitoringView ui 디자인
+- 파이널 프로젝트
+    - 하드웨어 연결도
 
 
 
