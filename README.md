@@ -466,7 +466,8 @@ https://github.com/user-attachments/assets/6b574bab-f3d1-4689-bf5c-019f3ffd5474
                     SelectedValue="{Binding SelectedSchedule.SchEndTime}"/>
             </StackPanel>
             ```
-            - <img src='./miniproject_mes/C#문법읽기쓰기다양한버전.png' width=500>
+
+            - <img src='./miniproject_mes/Csharp문법읽기쓰기다양한버전.png' > 
             - [ScheduleView 콤보박스 itemSource 바인딩](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/ScheduleView.xaml)
             - [TimeOption모델 클래스](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Helpers/TimeOption.cs)
             - [C#문법읽기](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/ScheduleViewModel.cs)
