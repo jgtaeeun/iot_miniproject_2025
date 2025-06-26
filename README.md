@@ -666,6 +666,92 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
         ```
     - _dialogCoordinator 속성 [MonitoringView.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/MonitoringView.xaml) [ MonitoringViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs) 
     - 페이지이동 [MainViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MainViewModel.cs) [App.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/App.xaml)
+14. MonitoringView 기능 구현
+   1. WpfIotSimulatorApp의 MOVE, CHECK 기본 애니메이션 가져오기 
+        - WpfIotSimulatorApp의 MainView.xaml의 애니메이션 ui -> WpfMrpSimulatorApp의 MonitoringView.xaml에 넣기
+        - WpfIotSimulatorApp의 MainView.xaml.cs의 애니메이션 함수2개 -> WpfMrpSimulatorApp의 MonitoringView.xaml.cs에 넣기
+        - WpfIotSimulatorApp의 MainViewModel.cs의 애니메이션 관련 속성과 버튼함수 2개  -> WpfMrpSimulatorApp의 MonitoringViewModel.cs에 넣기
+        - WpfMrpSimulatorApp의 MonitoringView.xaml.cs에 이벤트를 발행
+            ```cs
+            public MonitoringView()
+            {
+                InitializeComponent();
+
+                this.DataContextChanged += (s, e) =>
+                {
+                    if (e.NewValue is MonitoringViewModel vm)
+                    {
+                        vm.StartHmiRequested += startHmiAni;
+                        vm.StartSensorCheckRequested += startCheckAni;
+                    }
+                };
+            }
+            ```
+            - ContentControl이 ViewModel만 알고 있고 View는 자동으로 DataTemplate을 통해 생성되기 때문에, MainViewModel에서는 View 객체에 접근할 수 없습니다.
+            - 따라서 ViewModel이 이벤트를 발행하고, View가 이를 구독하여 직접 애니메이션 등을 실행해야 합니다.
+    
+    2. SchIdx를 선택해서 조회버튼 눌렀을 때, db에서 해당 데이터 가져오기
+        - WpfMrpSimulatorApp의 MonitoringView.xaml에 속성 바인딩   [MonitoringView.xaml 속성](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/MonitoringView.xaml) [ MonitoringViewModel.cs 속성](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+        - SearchProcess함수 구현 - MySqlConnection, Adapter,  DataSet   [ MonitoringViewModel.cs의 SearchProcess함수](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+            ```cs
+            try
+            {
+                string query = @" SELECT sch.schIdx, sch.plantCode ,set1.codeName AS plantName,   sch.schDate AS prcDate, sch.loadTime AS prcLoadTime, 
+                                set1.codeDesc AS prcCodeDesc,  sch.schAmount AS prcAmount
+                                FROM schedules AS sch
+                                JOIN settings AS set1 
+                                ON sch.plantCode = set1.BasicCode
+                                WHERE sch.schIdx = @schIdx";
+                DataSet ds = new DataSet();
+
+                using (MySqlConnection conn= new MySqlConnection(Common.CONNSTR))
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@schIdx",SchIdx);
+                    MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
+                    
+
+                    adapter.Fill(ds,"Result");
+                    Debug.WriteLine(ds.Tables["Result"].Rows.Count);   //1       schIdx가 pk이니 1행만 나올것이다.
+                    Debug.WriteLine(ds.Tables["Result"].Rows[0]);  //itemArray에 보면 데이터가 담겨져있다.
+
+                    if (ds.Tables["Result"].Rows.Count !=0)
+                    {
+                        DataRow row = ds.Tables["Result"].Rows[0];
+                        PlantName = row["plantName"].ToString();
+                        PrcDate = Convert.ToDateTime(row["prcDate"]).ToString("yyyy-MM-dd");
+                        PrcLoadTime = row["prcLoadTime"].ToString();
+                        PrcCodeDesc = row["prcCodeDesc"].ToString();
+                        SchAmount = Convert.ToInt32(row["prcAmount"]);
+                        SucessAmount = FailAmount = 0;
+                        SuccessRate = "0.0%";
+
+                    }
+                    else
+                    {
+                        await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
+                        PlantName = string.Empty;
+                        PrcDate = string.Empty;
+                        PrcLoadTime = string.Empty;
+                        PrcCodeDesc = string.Empty;
+                        SchAmount = 0;
+                        SucessAmount = FailAmount = 0;
+                        SuccessRate = string.Empty;
+                        return;
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message );
+            }
+            ```
+    3. 애니메이션 함수에 mqtt통신 추가
+    4. mqtt구독해서 양품/불량품 결과를 db에 저장하기
+
+
 #### 파이썬 AI + ASP.NET 연동
 
 
@@ -751,6 +837,34 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
 - 파이널 프로젝트
     - 하드웨어 연결도
 
+## 97일차(6/26)
+- MES 공정관리 시뮬레이션 
+    - WpfMrpSimulatorApp - MonitoringView ui 디자인 , 애니메이션, mqtt구독,발행
+- 파이널 프로젝트
+    - 하드웨어 연결도 (with tinkercad)
+    - 릴레이모듈1로 전원종류 선택 후 전원공급
+    - 릴레이모듈2로 전원흐를 때 on, off
+
+## 98일차(6/27)
+1. 수업(구독,발행).깃업로드.동영상업로드.깃풀
+
+시작함수,  검색함수 위해서는 공장 PIdx 필요 - PIdx가 0이 아닌지 if문(o)
+
+ 시작함수 =애니메이션 함수에 mqtt통신 추가
+checkResult에 -, PIdx, Result, Date  
+
+ 검색함수=mqtt구독해서 양품/불량품 결과를 db에 저장하기
+mqtt구독 데이터에서 날짜, 공장명, 공장세부명 필터링해오기
+아래의 db연동방식 정리/ Debug.WriteLine
+
+2. 하드웨어구조도.하드웨어코드.ai분석코드
+   
+3. 필기정리
+   
+    1. myconnection-reader
+    2. myconnection-dbset,adapter
+    3. dbcontext
+    4. mqtt 최초 세팅
 
 
 - MQTT Subscriber(WpfMqttSubApp) - 저장함수

@@ -71,7 +71,7 @@ namespace WpfIotSimulatorApp.Views
             {
                     From = 1,
                     To = 0,
-                    Duration = TimeSpan.FromSeconds(2),
+                    Duration = TimeSpan.FromMilliseconds(50),
                     AutoReverse = true
             };
             //name이 SortingSensor인 센서역할 객체의 애니메이션

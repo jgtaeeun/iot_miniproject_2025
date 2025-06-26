@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5.0*" />
-            <ColumnDefinition Width="1.5*" />
+            <ColumnDefinition Width="1.8*" />
         </Grid.ColumnDefinitions>
         <!-- UI구성 타이틀 -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="2">
@@ -40,7 +40,8 @@
                 <mah:NumericUpDown Margin="0,0,5,0"
                                    mah:TextBoxHelper.AutoWatermark="True" 
                                    mah:TextBoxHelper.Watermark="공정계획순번"
-                                   Minimum="1" />
+                                   Minimum="0" 
+                                   Value="{Binding SchIdx}"/>
                 <Button Content="Search" Command="{Binding SearchProcessCommand}" Margin="0,0,5,0" />
                 <Button Content="Start" Command="{Binding StartProcessCommand}">
                     <Button.ContentTemplate>
@@ -52,15 +53,15 @@
                         </DataTemplate>
                     </Button.ContentTemplate>
                 </Button>
-
+               
             </StackPanel>
             <!--HMI-->
-            <Canvas Grid.Row="1">
-                <Image Source="/Resources/belt.png" Canvas.Bottom="5" Height="100" Canvas.Top="102"  Canvas.Left="45" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
-                <Image x:Name="GearStart" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Left="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
-                <Image x:Name="GearEnd" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Right="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="454"></Image>
-                <Image x:Name="SortingSensor" Height="45" Width="45" Source="/Resources/sensor.png" Canvas.Right="90" Canvas.Left="414" HorizontalAlignment="Left" VerticalAlignment="Center" ></Image>
-                <Rectangle x:Name="Product" Height="40" Width="40" Stroke="Black" Fill="{Binding ProductBrush}" Canvas.Left="127" Canvas.Top="61" HorizontalAlignment="Left" VerticalAlignment="Center"></Rectangle>
+            <Canvas Grid.Row="1" >
+                <Image Source="/Resources/belt.png" Canvas.Bottom="5" Height="100" Canvas.Top="102"  Canvas.Left="45" HorizontalAlignment="Left" VerticalAlignment="Center"  ></Image>
+                <Image x:Name="GearStart" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Left="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center"  ></Image>
+                <Image x:Name="GearEnd" Height="80" Width="80" Source="/Resources/gear.png" Canvas.Right="55" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="454" ></Image>
+                <Image x:Name="SortingSensor" Height="45" Width="45" Source="/Resources/sensor.png" Canvas.Right="90" Canvas.Left="414" HorizontalAlignment="Left" VerticalAlignment="Center"   ></Image>
+                <Rectangle x:Name="Product" Height="40" Width="40" Stroke="Black" Fill="{Binding ProductBrush}" Canvas.Left="127" Canvas.Top="61" HorizontalAlignment="Left" VerticalAlignment="Center"  ></Rectangle>
             </Canvas>
         </Grid>
         <!-- UI구성 입력양식 -->
@@ -77,7 +78,7 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.8*" />
                         <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
 
@@ -89,13 +90,17 @@
                     <Label Grid.Row="5" Grid.Column="0" Content="성공/실패수" />
                     <Label Grid.Row="6" Grid.Column="0" Content="공정성공률" />
 
-                    <Label Grid.Row="0" Grid.Column="1" Content="창원공장" />
-                    <Label Grid.Row="1" Grid.Column="1" Content="2025-06-26" />
-                    <Label Grid.Row="2" Grid.Column="1" Content="10" />
-                    <Label Grid.Row="3" Grid.Column="1" Content="창원설비1" />
-                    <Label Grid.Row="4" Grid.Column="1" Content="100" />
-                    <Label Grid.Row="5" Grid.Column="1" Content="20/3" />
-                    <Label Grid.Row="6" Grid.Column="1" Content="86.9%" />
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding PlantName}" FontWeight="Bold" />
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding PrcDate}" />
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding PrcLoadTime}" />
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding PrcCodeDesc}" FontWeight="Bold" />
+                    <Label Grid.Row="4" Grid.Column="1" Content="{Binding SchAmount}" FontWeight="Bold"  Foreground="Blue"/>
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                    <Label Content="{Binding SucessAmount}" Foreground="Green"></Label>
+                    <Label Content="/"></Label>
+                    <Label Content="{Binding FailAmount}"  Foreground="Red"></Label>
+                </StackPanel>
+                <Label Grid.Row="6" Grid.Column="1" Content="{Binding SuccessRate}" Foreground="Blue" />
                 </Grid>
             </GroupBox>
 

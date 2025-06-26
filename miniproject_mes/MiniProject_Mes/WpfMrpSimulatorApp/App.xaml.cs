@@ -32,6 +32,7 @@ namespace WpfMrpSimulatorApp
             {
                 DataContext = viewModel,
             };
+           
             view.ShowDialog();
 
         }

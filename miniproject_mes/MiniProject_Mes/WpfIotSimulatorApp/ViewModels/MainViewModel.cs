@@ -137,7 +137,7 @@ namespace WpfIotSimulatorApp.ViewModels
 
             //발행
             mqttClient.PublishAsync(message);
-            LogText = $"MQTT브로커에 양품불량품 판단 메시지 전송 : { logNum++}";
+            LogText = $"MQTT브로커에 양품불량품 판단 메시지 전송 : {logNum++}";
         }
 
 

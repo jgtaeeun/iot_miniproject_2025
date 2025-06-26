@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MahApps.Metro.Controls.Dialogs;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace WpfMrpSimulatorApp.ViewModels
         public void Monitoring()
         {
             CurrentViewModel = new MonitoringViewModel(Common.DIALOGCOORDINATOR);
-     
+           
         }
         
 
