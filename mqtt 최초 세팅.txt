@@ -1,0 +1,29 @@
+mqtt 최초 세팅
+
+#### MQTT 시뮬레이션 프로젝트 시작
+1. MQTT 브로커 설치
+    - https://mosquitto.org/download/에서 Binary Installation- Windows- mosquitto-2.0.21a-install-windows-x64.exe 설치
+    - 설치 후 window+R에 services.msc 입력해서 Mosquitto Broker 찾아서 서비스 중지
+2. 설정파일 수정
+    - notdpad++ 관리자모드로 열기 - 설치된 경로 C:\Dev\tool\mosquitto에 있는  mosquitto.conf를 파일 열기
+    - 212줄에 있는 #listeners 수정 => Listeners 1883 
+    ```
+    # MQTT 디폴트 포트번호 1883
+    Listeners 1883
+    ```
+    - 534줄에 있는 allow _anonymous false 수정 =>  allow_anonymous true
+    - 파일저장 후 , 서비스 재시작
+3. Window보안
+    - 방화벽 및 네트워크 보호- 고급설정 또는 제어판-windows defender방화벽-고급설정
+    - 인바운드 규칙- 새규칙- 포트 - TCP , 특정로컬포트 1883 - 연결허용- 3항목 다 체크- 이름, 설명 작성 - 마침
+
+4. MQTT Explorer 설치
+    - https://mqtt-explorer.com/ 에서 download - window platform - installer
+    - <img src='./day71/MQTT EXPLORER 설정.png'>
+    - window+r의 services.msc에서 mosquitto.service 시작하기
+    - 위의 방법이 안 될 경우, powershell에서 아래의 코드 실행 후 explorer에서 connect 시도하기
+    ```shell
+    PS C:\Users\Admin> cd C:\Dev\tool\mosquitto
+    PS C:\Dev\tool\mosquitto> .\mosquitto.exe -v -c C:\Dev\tool\mosquitto\mosquitto.conf
+    ```
+    - <img src='./day71/실행화면.png' width =500>

@@ -1,0 +1,118 @@
+데이터베이스 연동 
+
+1. myconnection-reader
+
+string query = @"SELECT basicCode,codeName,codeDesc,reDt,modDt FROM settings";
+ObservableCollection<Setting> settings = new ObservableCollection<Setting>();
+
+//db연동 방식 1
+using (MySqlConnection conn = new MySqlConnection(Common.CONNSTR))
+{
+    conn.Open();    
+    MySqlCommand cmd = new MySqlCommand(query, conn);
+    MySqlDataReader reader = cmd.ExecuteReader();   
+
+    while (reader.Read())
+    {
+        var basicCode = reader.GetString("basicCode");
+        var codeName = reader.GetString("codeName");
+        var codeDesc = reader.GetString("codeDesc");
+        var reDt = reader.GetDateTime("reDt");
+        var modDt =  reader.IsDBNull(reader.GetOrdinal("modDt"))    ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("modDt"));
+
+
+
+        settings.Add(new Setting
+        {
+            BasicCode = basicCode,
+            CodeName = codeName,
+            CodeDesc = codeDesc,
+            ReDt =  reDt,
+            ModDt =  modDt
+        });
+
+    }
+    Settings = settings; 
+=============================
+
+2. myconnection-dbset,adapter
+
+    string query = @" SELECT sch.schIdx, sch.plantCode ,set1.codeName AS plantName,   sch.schDate AS prcDate, sch.loadTime AS prcLoadTime, 
+                    set1.codeDesc AS prcCodeDesc,  sch.schAmount AS prcAmount
+                    FROM schedules AS sch
+                    JOIN settings AS set1 
+                    ON sch.plantCode = set1.BasicCode
+                    WHERE sch.schIdx = @schIdx";
+    DataSet ds = new DataSet();
+
+    using (MySqlConnection conn= new MySqlConnection(Common.CONNSTR))
+    {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand(query, conn);
+        cmd.Parameters.AddWithValue("@schIdx",SchIdx);
+        MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
+       
+
+        adapter.Fill(ds,"Result");
+        //Debug.WriteLine(ds.Tables["Result"].Rows.Count);   //1       schIdx가 pk이니 1행만 나올것이다.
+        //Debug.WriteLine(ds.Tables["Result"].Rows[0]);  //itemArray에 보면 데이터가 담겨져있다.
+
+        if (ds.Tables["Result"].Rows.Count !=0)
+        {
+            DataRow row = ds.Tables["Result"].Rows[0];
+            PlantName = row["plantName"].ToString();
+            PrcDate = Convert.ToDateTime(row["prcDate"]).ToString("yyyy-MM-dd");
+            PrcLoadTime = row["prcLoadTime"].ToString();
+            PrcCodeDesc = row["prcCodeDesc"].ToString();
+            SchAmount = Convert.ToInt32(row["prcAmount"]);
+           // SucessAmount = FailAmount = 0;
+            //SuccessRate = "0.0%";
+
+        }
+        else
+        {
+            await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
+            PlantName = string.Empty;
+            PrcDate = string.Empty;
+            PrcLoadTime = string.Empty;
+            PrcCodeDesc = string.Empty;
+            SchAmount = 0;
+            //SucessAmount = FailAmount = 0;
+            //SuccessRate = string.Empty;
+            return;
+
+        }
+    }
+}
+
+=============================
+3. dbcontext - entityframework
+
+ using (var db = new IotDbContext())
+ {
+     var results = db.Schedules
+                 .Join(db.Settings,
+                 sch => sch.PlantCode,
+                 setting => setting.BasicCode,
+                 (sch, setting) => new ScheduleNew
+                 {
+                     SchIdx = sch.SchIdx,
+                     PlantCode = sch.PlantCode,
+                     PlantName = setting.CodeName,  // 공장 이름 가져오기
+                     SchDate = sch.SchDate,
+                     LoadTime = sch.LoadTime,
+                     SchStartTime = sch.SchStartTime,
+                     SchEndTime = sch.SchEndTime,
+                     SchAmount = sch.SchAmount,
+
+                     SchFacilityId = sch.SchFacilityId,
+
+                     RegDt = sch.RegDt,
+                     ModDt = sch.ModDt,
+                 })
+                 ;
+
+
+
+
+     Schedules = new ObservableCollection<ScheduleNew>(results);
