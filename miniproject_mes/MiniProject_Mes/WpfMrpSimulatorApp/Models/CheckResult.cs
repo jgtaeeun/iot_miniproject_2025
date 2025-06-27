@@ -13,6 +13,9 @@ namespace WpfMrpSimulatorApp.Models
         public string TimeStamp { get; set; }
 
         //양품,불량품 구분
-        public string Result { get; set; }  
+        public string Result { get; set; }
+
+        public int LoadTime { get; set; }
+        public string PlantCode { get; set; }
     }
 }

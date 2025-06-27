@@ -92,7 +92,7 @@
 
         <StatusBar Grid.Row="2">
             <StatusBarItem>
-                <TextBlock Text="{Binding}" />
+                <TextBlock Text="" />
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalAlignment="Right">

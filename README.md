@@ -748,10 +748,21 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
                 await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message );
             }
             ```
-    3. 애니메이션 함수에 mqtt통신 추가
-    4. mqtt구독해서 양품/불량품 결과를 db에 저장하기
+    3. StartProcess() 함수  [mqtt 발행](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+        - schIdx가 있는지 확인하고 값 들고옴
+        - 애니메이션 및 발행
+    4.  mqtt 초기함수- InitMqttClient()함수  [mqtt 초기함수 및 mqtt 구독](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+        - 구독해서 db에 process테이블에 저장
 
+    5. SearchProcess() 함수 [db 불러오기](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+        - process, setting, schedule 테이블 조인해서 값 가져옴 
+        - 성공 , 실패 필터링해서 amount반영
 
+15. 추후 작업 (MiniProject 3)
+    - ReportView, ReportViewModel LiveChart 작업
+    - MainView 상태표시줄 완성
+    - 예외처리 마무리
+    
 #### 파이썬 AI + ASP.NET 연동
 
 
@@ -839,32 +850,20 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
 
 ## 97일차(6/26)
 - MES 공정관리 시뮬레이션 
-    - WpfMrpSimulatorApp - MonitoringView ui 디자인 , 애니메이션, mqtt구독,발행
+    - WpfMrpSimulatorApp - MonitoringView ui 디자인 , 애니메이션
 - 파이널 프로젝트
     - 하드웨어 연결도 (with tinkercad)
     - 릴레이모듈1로 전원종류 선택 후 전원공급
     - 릴레이모듈2로 전원흐를 때 on, off
 
 ## 98일차(6/27)
-1. 수업(구독,발행).깃업로드.동영상업로드.깃풀
+- MES 공정관리 시뮬레이션 
+    - WpfMrpSimulatorApp - MonitoringView mqtt구독,발행
+    - MQTT Subscriber(WpfMqttSubApp)의 저장함수는 WpfMrpSimulatorApp - MonitoringView mqtt구독 함수와 동일한 역할이라 생략함
 
-시작함수,  검색함수 위해서는 공장 PIdx 필요 - PIdx가 0이 아닌지 if문(o)
-
- 시작함수 =애니메이션 함수에 mqtt통신 추가
-checkResult에 -, PIdx, Result, Date  
-
- 검색함수=mqtt구독해서 양품/불량품 결과를 db에 저장하기
-mqtt구독 데이터에서 날짜, 공장명, 공장세부명 필터링해오기
-아래의 db연동방식 정리/ Debug.WriteLine
-
-2. 하드웨어구조도.하드웨어코드.ai분석코드
-   
-3. 필기정리
-   
-    1. myconnection-reader
-    2. myconnection-dbset,adapter
-    3. dbcontext
-    4. mqtt 최초 세팅
+- 파이널 프로젝트
 
 
-- MQTT Subscriber(WpfMqttSubApp) - 저장함수
+
+
+
