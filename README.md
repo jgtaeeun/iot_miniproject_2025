@@ -758,6 +758,11 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
         - process, setting, schedule 테이블 조인해서 값 가져옴 
         - 성공 , 실패 필터링해서 amount반영
 
+
+https://github.com/user-attachments/assets/dac9e4df-6f99-4c39-8687-6c9db2e56c36
+
+
+
 15. 추후 작업 (MiniProject 3)
     - ReportView, ReportViewModel LiveChart 작업
     - MainView 상태표시줄 완성
