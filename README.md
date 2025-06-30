@@ -667,7 +667,7 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
     - _dialogCoordinator 속성 [MonitoringView.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/MonitoringView.xaml) [ MonitoringViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs) 
     - 페이지이동 [MainViewModel.cs](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MainViewModel.cs) [App.xaml](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/App.xaml)
 14. MonitoringView 기능 구현
-   1. WpfIotSimulatorApp의 MOVE, CHECK 기본 애니메이션 가져오기 
+    1. WpfIotSimulatorApp의 MOVE, CHECK 기본 애니메이션 가져오기 
         - WpfIotSimulatorApp의 MainView.xaml의 애니메이션 ui -> WpfMrpSimulatorApp의 MonitoringView.xaml에 넣기
         - WpfIotSimulatorApp의 MainView.xaml.cs의 애니메이션 함수2개 -> WpfMrpSimulatorApp의 MonitoringView.xaml.cs에 넣기
         - WpfIotSimulatorApp의 MainViewModel.cs의 애니메이션 관련 속성과 버튼함수 2개  -> WpfMrpSimulatorApp의 MonitoringViewModel.cs에 넣기
@@ -687,67 +687,70 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
                 };
             }
             ```
+
             - ContentControl이 ViewModel만 알고 있고 View는 자동으로 DataTemplate을 통해 생성되기 때문에, MainViewModel에서는 View 객체에 접근할 수 없습니다.
             - 따라서 ViewModel이 이벤트를 발행하고, View가 이를 구독하여 직접 애니메이션 등을 실행해야 합니다.
     
     2. SchIdx를 선택해서 조회버튼 눌렀을 때, db에서 해당 데이터 가져오기
         - WpfMrpSimulatorApp의 MonitoringView.xaml에 속성 바인딩   [MonitoringView.xaml 속성](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/Views/MonitoringView.xaml) [ MonitoringViewModel.cs 속성](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
         - SearchProcess함수 구현 - MySqlConnection, Adapter,  DataSet   [ MonitoringViewModel.cs의 SearchProcess함수](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
+       
             ```cs
-            try
-            {
-                string query = @" SELECT sch.schIdx, sch.plantCode ,set1.codeName AS plantName,   sch.schDate AS prcDate, sch.loadTime AS prcLoadTime, 
-                                set1.codeDesc AS prcCodeDesc,  sch.schAmount AS prcAmount
-                                FROM schedules AS sch
-                                JOIN settings AS set1 
-                                ON sch.plantCode = set1.BasicCode
-                                WHERE sch.schIdx = @schIdx";
-                DataSet ds = new DataSet();
-
-                using (MySqlConnection conn= new MySqlConnection(Common.CONNSTR))
+                try
                 {
-                    conn.Open();
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@schIdx",SchIdx);
-                    MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
-                    
+                    string query = @" SELECT sch.schIdx, sch.plantCode ,set1.codeName AS plantName,   sch.schDate AS prcDate, sch.loadTime AS prcLoadTime, 
+                                    set1.codeDesc AS prcCodeDesc,  sch.schAmount AS prcAmount
+                                    FROM schedules AS sch
+                                    JOIN settings AS set1 
+                                    ON sch.plantCode = set1.BasicCode
+                                    WHERE sch.schIdx = @schIdx";
+                    DataSet ds = new DataSet();
 
-                    adapter.Fill(ds,"Result");
-                    Debug.WriteLine(ds.Tables["Result"].Rows.Count);   //1       schIdx가 pk이니 1행만 나올것이다.
-                    Debug.WriteLine(ds.Tables["Result"].Rows[0]);  //itemArray에 보면 데이터가 담겨져있다.
-
-                    if (ds.Tables["Result"].Rows.Count !=0)
+                    using (MySqlConnection conn= new MySqlConnection(Common.CONNSTR))
                     {
-                        DataRow row = ds.Tables["Result"].Rows[0];
-                        PlantName = row["plantName"].ToString();
-                        PrcDate = Convert.ToDateTime(row["prcDate"]).ToString("yyyy-MM-dd");
-                        PrcLoadTime = row["prcLoadTime"].ToString();
-                        PrcCodeDesc = row["prcCodeDesc"].ToString();
-                        SchAmount = Convert.ToInt32(row["prcAmount"]);
-                        SucessAmount = FailAmount = 0;
-                        SuccessRate = "0.0%";
+                        conn.Open();
+                        MySqlCommand cmd = new MySqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@schIdx",SchIdx);
+                        MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
+                        
 
-                    }
-                    else
-                    {
-                        await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
-                        PlantName = string.Empty;
-                        PrcDate = string.Empty;
-                        PrcLoadTime = string.Empty;
-                        PrcCodeDesc = string.Empty;
-                        SchAmount = 0;
-                        SucessAmount = FailAmount = 0;
-                        SuccessRate = string.Empty;
-                        return;
+                        adapter.Fill(ds,"Result");
+                        Debug.WriteLine(ds.Tables["Result"].Rows.Count);   //1       schIdx가 pk이니 1행만 나올것이다.
+                        Debug.WriteLine(ds.Tables["Result"].Rows[0]);  //itemArray에 보면 데이터가 담겨져있다.
 
+                        if (ds.Tables["Result"].Rows.Count !=0)
+                        {
+                            DataRow row = ds.Tables["Result"].Rows[0];
+                            PlantName = row["plantName"].ToString();
+                            PrcDate = Convert.ToDateTime(row["prcDate"]).ToString("yyyy-MM-dd");
+                            PrcLoadTime = row["prcLoadTime"].ToString();
+                            PrcCodeDesc = row["prcCodeDesc"].ToString();
+                            SchAmount = Convert.ToInt32(row["prcAmount"]);
+                            SucessAmount = FailAmount = 0;
+                            SuccessRate = "0.0%";
+
+                        }
+                        else
+                        {
+                            await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
+                            PlantName = string.Empty;
+                            PrcDate = string.Empty;
+                            PrcLoadTime = string.Empty;
+                            PrcCodeDesc = string.Empty;
+                            SchAmount = 0;
+                            SucessAmount = FailAmount = 0;
+                            SuccessRate = string.Empty;
+                            return;
+
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message );
-            }
+                catch (Exception ex)
+                {
+                    await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message );
+                }
             ```
+
     3. StartProcess() 함수  [mqtt 발행](./miniproject_mes/MiniProject_Mes/WpfMrpSimulatorApp/ViewModels/MonitoringViewModel.cs)
         - schIdx가 있는지 확인하고 값 들고옴
         - 애니메이션 및 발행
