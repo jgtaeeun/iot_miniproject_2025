@@ -1,0 +1,9 @@
+{
+  "Database": {
+    "Server": "210.119.12.110",
+    "Database": "mydb",
+    "User": "root",
+    "Password": "12345"
+  }
+
+}

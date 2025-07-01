@@ -761,11 +761,111 @@ https://github.com/user-attachments/assets/064b30a2-47c1-48c3-a294-f84a67e0f08f
         - process, setting, schedule 테이블 조인해서 값 가져옴 
         - 성공 , 실패 필터링해서 amount반영
 
-
+- MrsSimulator 내에서 mqtt에 발행 및 구독
 https://github.com/user-attachments/assets/dac9e4df-6f99-4c39-8687-6c9db2e56c36
 
+- MrsSimualtor과 IotSimulator 사이의 mqtt 발행,구독 연결 [ver2](./miniproject_mes%20-%20복사본/MiniProject_Mes/)
+    - 통신구조
+        - <img src='./miniproject_mes/iotsimulator,mrssimulator 송수신.png' width=500>
+    - IotSimulator의 HandleReceivedMessageAsync() 함수 내에서 스레드충돌 JSON 파싱 또는 DB 저장 오류: 다른 스레드가 이 개체를 소유하고 있어 호출 스레드가 해당 개체에 액세스할 수 없습니다.    
+    - 원인 파악 및 해결방법 
+        - <img src='./ui스레드와 백그라운드mqtt스레드.png' Width=500>
+        - <img src='./스레드충돌해결방법.png' width=500>
+    - 코드 추가 및 수정할 부분
+        - iotsimulator프로젝트 - MainViewModel.cs ,   MrsSimulator프로젝트- MonitoringView.cs 
+       
+            ```cs
+            // MQTT 재접속용 변수
+
+            private Timer _mqttMonitorTimer;
+            private bool _isReconnecting = false;
 
 
+            private void StartMqttMonitor()
+            {
+                _mqttMonitorTimer = new Timer(async _ =>
+                {
+                    try
+                    {
+                        await CheckMqttConnectionAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MQTT 연결 모니터링 중 오류: {ex.Message}");
+                    }
+                }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10));
+                // 프로그램실행 2초 이후부터, 10초마다 한번씩 연결여부 확인, 재접속
+            }
+
+            // 핵심. MQTTClient 접속이 끊어지면 재접속
+            private async Task CheckMqttConnectionAsync()
+            {
+                if (!mqttClient.IsConnected && !_isReconnecting)
+                {
+                    _isReconnecting = true;
+
+                    try
+                    {
+                        var options = new MqttClientOptionsBuilder()
+                                            .WithTcpServer(brokerHost, 1883)
+                                            .WithCleanSession(true)
+                                            .Build();
+                        await mqttClient.ConnectAsync(options);
+                        _isReconnecting = false;  // 성공 시 false로 변경
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MQTT 재접속 실패 : {ex.Message}");
+                        _isReconnecting = false;  // 실패 후에도 false로 변경해서 재시도 가능하도록
+                    }
+                }
+            }
+
+
+            ```
+
+        - iotsimulator프로젝트 - MainViewModel.cs
+            ```cs
+            pubTopic  = "pknu/mes/Monitoring/CheckTrueFalse";   //iotsimulator에서 양품불량품 확인
+            subTopic = "pknu/mes/Monitoring/CheckSchId";      
+            ```
+            ```cs
+            [RelayCommand]
+            public void Move()
+            {
+                ProductBrush = Brushes.Gray;
+
+                Application.Current.Dispatcher.Invoke(() =>  // UI스레드와 VM스레드간 분리
+                {
+                    StartHmiRequested?.Invoke();  // 컨베이어벨트 애니메이션 요청(View에서 처리)
+                });
+
+
+            }
+
+            [RelayCommand]
+            public void CheckAsync()
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    StartSensorCheckRequested?.Invoke();
+                });
+            }
+            ```
+        - MrsSimulator프로젝트- MonitoringView.cs
+            ```cs
+            subTopic = "pknu/mes/Monitoring/CheckTrueFalse";   //iotsimulator에서 양품불량품 확인
+            pubTopic = "pknu/mes/Monitoring/CheckSchId";      
+            ```
+    - 추가 작업
+        1. 공정 실시간 누적 업데이트-성공, 실패수
+            - 현재schIdx를 알 수 있는 변수 추가
+            - StartProcess() 공정 시작 함수 내에서 현재schIdx와 선택한 schIdx가 같지 않을 경우, amount 0으로 초기화
+    - 해야할 것   
+        - db에 1개의 공정결과가 2번 중복 저장됨 -> mqtt 양품불량품 판단 메시지 전송이 4인데 db에는 db에는 8개의 행 데이터가 저장됨
+        - 현재는 과거부터 현재 공정까지 모두 합친 성공,실패수가 나옴. => 날짜선택 조회 - 디폴트는 오늘날짜 (해결해야 할 것)
+        - 영상녹화 - 날짜별로 조회, 공정 실시간 업데이트-성공, 실패수
+    
 15. 추후 작업 (MiniProject 3)
     - ReportView, ReportViewModel LiveChart 작업
     - MainView 상태표시줄 완성
@@ -870,6 +970,7 @@ https://github.com/user-attachments/assets/dac9e4df-6f99-4c39-8687-6c9db2e56c36
     - MQTT Subscriber(WpfMqttSubApp)의 저장함수는 WpfMrpSimulatorApp - MonitoringView mqtt구독 함수와 동일한 역할이라 생략함
 
 - 파이널 프로젝트
+    - 하드웨어 핀 연결 
 
 
 
