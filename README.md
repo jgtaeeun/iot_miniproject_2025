@@ -857,6 +857,11 @@ https://github.com/user-attachments/assets/dac9e4df-6f99-4c39-8687-6c9db2e56c36
             subTopic = "pknu/mes/Monitoring/CheckTrueFalse";   //iotsimulator에서 양품불량품 확인
             pubTopic = "pknu/mes/Monitoring/CheckSchId";      
             ```
+            
+
+https://github.com/user-attachments/assets/22820c7f-c93b-4958-b107-f333c40e89e8
+
+
     - 추가 작업
         1. 공정 실시간 누적 업데이트-성공, 실패수
             - 현재schIdx를 알 수 있는 변수 추가
