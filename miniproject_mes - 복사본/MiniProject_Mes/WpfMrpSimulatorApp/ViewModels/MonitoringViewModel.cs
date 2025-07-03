@@ -5,11 +5,15 @@ using MahApps.Metro.Controls.Dialogs;
 using MQTTnet;
 using MySqlConnector;
 using Newtonsoft.Json;
+using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Xml.Schema;
 using WpfMrpSimulatorApp.Helpers;
 using WpfMrpSimulatorApp.Models;
 
@@ -118,8 +122,21 @@ namespace WpfMrpSimulatorApp.ViewModels
         private int tempPrcLoadTime =0;
         private string tempPrcCd = string.Empty;
 
-        //--------------현재의 schIdx와 선택한 게 같은지, 다른지 판단해서 다를 경우, amount을 0으로 초기화
+        //--------------
+        //현재의 schIdx와 선택한 게 같은지, 다른지 판단해서 다를 경우, amount을 0으로 초기화
         private int currSchIdx = 0;
+
+        //현재의 schIdx와 선택한 게 같은지, 다른지 판단해서 다를 경우, search함수 날짜를 오늘로 초기화
+        private int currSchIdx2 = 0;
+
+        // search함수 쿼리의 날짜 선택
+        private string SelectedDate = DateTime.Now.ToString("yyyy-MM-dd") + "%";
+        private string maxDate = DateTime.Now.ToString("yyyy-MM-dd");
+        private string minDate = DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd");
+
+        //search()함수가 최초 search인지 아니면 다음,이전버튼으로  search()인지에 따라 메시지 출력이 다르게 하기 위해서
+        private bool isnotfirst = false;
+        private bool isbuttonCommand = false;
         //-------------------
         public MonitoringViewModel(IDialogCoordinator coordinator)
         {
@@ -230,17 +247,22 @@ namespace WpfMrpSimulatorApp.ViewModels
 
                     using (var db = new IotDbContext())
                     {
-                        db.Processes.Add(new Models.Process
+                        var exists = db.Processes.Any(p => p.SchIdx == data.PIdx && p.PrcDate == data.TimeStamp);
+                        if (!exists)
                         {
-                            SchIdx = data.PIdx,
-                            PrcDate = Convert.ToString(data.TimeStamp),
-                            PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
-                            PrcLoadTime = data.LoadTime,
-                            PrcCd = data.PlantCode
-                        });
-                        await db.SaveChangesAsync();
+                            db.Processes.Add(new Models.Process
+                            {
+                                SchIdx = data.PIdx,
+                                PrcDate = Convert.ToString(data.TimeStamp),
+                                PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
+                                PrcLoadTime = data.LoadTime,
+                                PrcCd = data.PlantCode
+                            });
+                            await db.SaveChangesAsync();
 
-                        
+                        }
+
+
                     }
                 }
             }
@@ -253,6 +275,14 @@ namespace WpfMrpSimulatorApp.ViewModels
         //---------------- db연동 함수
         [RelayCommand]
         public async Task SearchProcess()
+        {
+            isnotfirst = false;
+            isbuttonCommand = false;
+            search();
+
+        }
+
+        private async Task search()
         {
             PlantName = string.Empty;
             PrcDate = string.Empty;
@@ -268,8 +298,27 @@ namespace WpfMrpSimulatorApp.ViewModels
                 return;
             }
 
+            
+            currSchIdx2 = SchIdx;
 
-            await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "조회를 시작합니다");
+
+            if (isnotfirst)
+            {
+             
+                await this._dialogCoordinator.ShowMessageAsync(this, "공정조회(2)", $"{SelectedDate.Replace("%", "")} 기준일 조회를 시작합니다");
+           
+
+            }
+            else
+            {
+                isnotfirst = true;
+                SelectedDate = DateTime.Now.ToString("yyyy-MM-dd") + "%";
+                await this._dialogCoordinator.ShowMessageAsync(this, "공정조회(1)", "금일 조회를 시작합니다");
+            }
+
+
+              
+
 
 
 
@@ -285,22 +334,23 @@ namespace WpfMrpSimulatorApp.ViewModels
                                 JOIN process As pr
                                 ON sch.schIdx = pr.schIdx
                                 WHERE sch.schIdx = @schIdx
-                                and prcDate like  '2025-07-01%' ";
+                                and prcDate like @selDate";
                 DataSet ds = new DataSet();
 
-                using (MySqlConnection conn= new MySqlConnection(Common.CONNSTR))
+                using (MySqlConnection conn = new MySqlConnection(Common.CONNSTR))
                 {
                     conn.Open();
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@schIdx",SchIdx);
+                    cmd.Parameters.AddWithValue("@schIdx", SchIdx);
+                    cmd.Parameters.AddWithValue("@selDate", SelectedDate);
                     MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
-                   
 
-                    adapter.Fill(ds,"Result");
+
+                    adapter.Fill(ds, "Result");
                     //Debug.WriteLine(ds.Tables["Result"].Rows.Count);   //1       schIdx가 pk이니 1행만 나올것이다.
                     //Debug.WriteLine(ds.Tables["Result"].Rows[0]);  //itemArray에 보면 데이터가 담겨져있다.
 
-                    if (ds.Tables["Result"].Rows.Count !=0)
+                    if (ds.Tables["Result"].Rows.Count != 0)
                     {
                         DataRow row = ds.Tables["Result"].Rows[0];
                         PlantName = row["plantName"].ToString();
@@ -314,13 +364,13 @@ namespace WpfMrpSimulatorApp.ViewModels
                             if (Convert.ToBoolean(ds.Tables["Result"].Rows[i]["prcResult"]))
                             {
                                 SucessAmount++;
-                               
+
                             }
                             else
                             {
                                 FailAmount++;
                             }
-                        
+
                         }
                         int total = SucessAmount + FailAmount;
                         SuccessRate = total > 0 ? $"{(SucessAmount * 100.0 / total):F1}%" : string.Empty;
@@ -328,7 +378,20 @@ namespace WpfMrpSimulatorApp.ViewModels
                     }
                     else
                     {
-                        await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
+                       
+                            if (isbuttonCommand)
+                            {
+                                await this._dialogCoordinator.ShowMessageAsync(this, "공정조회(2)", $"{SelectedDate.Replace("%", "")} 기준일 공정기록이 없습니다.");
+                            }
+                            else
+                            {
+                                await this._dialogCoordinator.ShowMessageAsync(this, "공정조회(1)", "해당 공정이 없습니다.");
+                            }
+                            
+                     
+                        
+
+
                         PlantName = string.Empty;
                         PrcDate = string.Empty;
                         PrcLoadTime = string.Empty;
@@ -343,10 +406,12 @@ namespace WpfMrpSimulatorApp.ViewModels
             }
             catch (Exception ex)
             {
-                await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message );
+                await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message);
             }
 
+            return;
         }
+
         //----------------
 
 
@@ -455,6 +520,63 @@ namespace WpfMrpSimulatorApp.ViewModels
             {
                 Debug.WriteLine(ex);
             }
+        }
+
+
+        [RelayCommand]
+        public async void ForwardDate()
+        {
+           if (SchIdx ==0) 
+           {
+                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "순번을 선택하세요");
+                return;
+           }
+
+            if (!isnotfirst || currSchIdx2 > SchIdx || currSchIdx2 < SchIdx)
+            {
+                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "search버튼을 선택하세요");
+                return;
+            }
+
+
+            DateTime tmpSelectedDate = Convert.ToDateTime(SelectedDate.Replace("%", ""));
+            string tempSelectedDate = tmpSelectedDate.AddDays(1).ToString("yyyy-MM-dd");
+            string tempMaxDate = maxDate;
+            if (string.Compare(tempSelectedDate, tempMaxDate)   > 0 )
+            {   await this._dialogCoordinator.ShowMessageAsync(this, "알림", "오늘 이후 데이터는 존재하지 않습니다.");
+                return ;
+            }
+            SelectedDate = tempSelectedDate + "%";
+            isbuttonCommand = true;
+            search();
+        }
+
+        [RelayCommand]
+        public async void BackwardDate()
+        {
+            if (SchIdx == 0)
+            {
+                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "순번을 선택하세요");
+                return;
+            }
+
+            if (!isnotfirst || currSchIdx2 > SchIdx || currSchIdx2 < SchIdx)
+            {
+                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "search버튼을 선택하세요");
+                return;
+            }
+
+            DateTime tmpSelectedDate = Convert.ToDateTime(SelectedDate.Replace("%", ""));
+            string tempSelectedDate = tmpSelectedDate.AddDays(-1).ToString("yyyy-MM-dd");
+            string tempMinDate = minDate;
+            if (string.Compare(tempSelectedDate, tempMinDate) <0)
+            {
+                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "더이상 과거의 데이터는 존재하지 않습니다.");
+                return;
+            }
+            SelectedDate = tempSelectedDate + "%";
+            isbuttonCommand = true;
+            search();
         }
     }
 }

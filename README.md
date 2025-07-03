@@ -862,14 +862,47 @@ https://github.com/user-attachments/assets/dac9e4df-6f99-4c39-8687-6c9db2e56c36
 https://github.com/user-attachments/assets/22820c7f-c93b-4958-b107-f333c40e89e8
 
 
-    - 추가 작업
-        1. 공정 실시간 누적 업데이트-성공, 실패수
-            - 현재schIdx를 알 수 있는 변수 추가
-            - StartProcess() 공정 시작 함수 내에서 현재schIdx와 선택한 schIdx가 같지 않을 경우, amount 0으로 초기화
-    - 해야할 것   
-        - db에 1개의 공정결과가 2번 중복 저장됨 -> mqtt 양품불량품 판단 메시지 전송이 4인데 db에는 db에는 8개의 행 데이터가 저장됨
-        - 현재는 과거부터 현재 공정까지 모두 합친 성공,실패수가 나옴. => 날짜선택 조회 - 디폴트는 오늘날짜 (해결해야 할 것)
-        - 영상녹화 - 날짜별로 조회, 공정 실시간 업데이트-성공, 실패수
+- 추가 작업
+    1. 공정 실시간 누적 업데이트-성공, 실패수
+        - 현재schIdx를 알 수 있는 변수 추가
+        - StartProcess() 공정 시작 함수 내에서 현재schIdx와 선택한 schIdx가 같지 않을 경우, amount 0으로 초기화
+    2. db에 1개의 공정결과가 2번 중복 저장됨 -> mqtt 양품불량품 판단 메시지 전송이 4인데 db에는 db에는 8개의 행 데이터가 저장됨
+        - MrsSimulator프로젝트의 구독함수HandleReceivedMessageAsync(MqttApplicationMessageReceivedEventArgs e)에서 db에 있는 데이터인지 조건문 추가
+        ```CS
+        using (var db = new IotDbContext())
+        {
+            var exists = db.Processes.Any(p => p.SchIdx == data.PIdx && p.PrcDate == data.TimeStamp);
+            if (!exists)
+            {
+                db.Processes.Add(new Models.Process
+                {
+                    SchIdx = data.PIdx,
+                    PrcDate = Convert.ToString(data.TimeStamp),
+                    PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
+                    PrcLoadTime = data.LoadTime,
+                    PrcCd = data.PlantCode
+                });
+                await db.SaveChangesAsync();
+
+            }
+
+
+        }
+        ```
+    3. 현재는 과거부터 현재 공정까지 모두 합친 성공,실패수가 나옴. => 날짜선택 조회 - 디폴트는 오늘날짜 
+        - SelectedDate (오늘날짜) , maxDate(오늘날짜), minDate(오늘날짜기준 30일전) 속성 추가
+        - SearchProcess함수 내 쿼리에 SelectedDate를 넣기
+        - 다음버튼(오늘날짜까지) , 이전버튼(minDate까지) 조회범위 설정
+        - 공정 schIdx 바뀔 경우,  selecteddate 오늘날짜로 초기화   -> currSchIdx 2 변수추가
+    4. SearchProcess함수를 두번 쓰게 됨. (최초검색, 날짜필터)
+        -  isnotfirst, isButtonCommand 변수추가로 메시지 출력 분리
+        - search()함수로 따로 빼내고 SearchProcess, Backward,Forward함수내에서 search 호출
+        - 메시지 예시
+            - search함수 공정시,  해당 schidx의 공정없습니다.
+            - 다음버튼으로 날짜필터로 search함수 공정시, 해당 schidx의 해당 날짜 공정이 없습니다.
+- 해야할 것   
+    - db에 스레드 문제로 가끔 2번 중복되서 저장됨
+    - 영상녹화 - 날짜별로 조회, 공정 실시간 업데이트-성공, 실패수
     
 15. 추후 작업 (MiniProject 3)
     - ReportView, ReportViewModel LiveChart 작업

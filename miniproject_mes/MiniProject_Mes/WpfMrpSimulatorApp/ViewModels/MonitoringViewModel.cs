@@ -187,19 +187,27 @@ namespace WpfMrpSimulatorApp.ViewModels
             try
             {
                 var data = JsonConvert.DeserializeObject<CheckResult>(payload);
+                
                 if (data != null)
                 {
+                   
                     using (var db = new IotDbContext())
                     {
-                        db.Processes.Add(new Models.Process
+                        var exists = db.Processes.Any(p => p.SchIdx == data.PIdx && p.PrcDate == data.TimeStamp);
+                        if (!exists)
                         {
-                            SchIdx = data.PIdx,
-                            PrcDate = Convert.ToString(data.TimeStamp),
-                            PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
-                            PrcLoadTime = data.LoadTime,
-                            PrcCd = data.PlantCode
-                        });
-                        await db.SaveChangesAsync();
+                            db.Processes.Add(new Models.Process
+                            {
+                                SchIdx = data.PIdx,
+                                PrcDate = Convert.ToString(data.TimeStamp),
+                                PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
+                                PrcLoadTime = data.LoadTime,
+                                PrcCd = data.PlantCode
+                            });
+                            await db.SaveChangesAsync();
+
+                        }
+                       
                     }
                 }
             }
