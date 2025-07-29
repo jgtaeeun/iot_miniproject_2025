@@ -900,9 +900,16 @@ https://github.com/user-attachments/assets/22820c7f-c93b-4958-b107-f333c40e89e8
         - 메시지 예시
             - search함수 공정시,  해당 schidx의 공정없습니다.
             - 다음버튼으로 날짜필터로 search함수 공정시, 해당 schidx의 해당 날짜 공정이 없습니다.
+
+
+
+https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
+
+- mqtt 발행,구독 과정 수정 필요 - 라즈베리파이 하면서 iptime ip주소 변경하게 되면서 새로운 mqtt 생성 필요함, brokerHost주소도 다 변경필요(192.168.0.2)
+
 - 해야할 것   
     - db에 스레드 문제로 가끔 2번 중복되서 저장됨
-    - 영상녹화 - 날짜별로 조회, 공정 실시간 업데이트-성공, 실패수
+ 
     
 15. 추후 작업 (MiniProject 3)
     - ReportView, ReportViewModel LiveChart 작업
