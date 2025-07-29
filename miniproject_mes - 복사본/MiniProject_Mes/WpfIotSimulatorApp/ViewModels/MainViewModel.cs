@@ -67,7 +67,7 @@ namespace WpfIotSimulatorApp.ViewModels
             Greeting = "Iot Sorting Simulator";
             LogText = "프로그램 실행";
             //MQTT 설정
-            brokerHost = "210.119.12.110";
+            brokerHost = "192.168.0.2";
             pubTopic = "pknu/mes/Monitoring/CheckTrueFalse";   //iotsimulator에서 양품불량품 확인
             subTopic = "pknu/mes/Monitoring/CheckSchId";      //mrs에서 schId선택되었는지 확인
             InitMqttClient();
