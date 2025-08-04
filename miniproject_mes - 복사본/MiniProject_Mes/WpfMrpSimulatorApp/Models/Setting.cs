@@ -15,7 +15,7 @@ public partial class Setting
     /// <summary>
     /// 코드설명
     /// </summary>
-    public string? CodeDesc { get; set; }
+    public string? CodeDesc { get; set; } = null!;
 
     /// <summary>
     /// 최초등록
