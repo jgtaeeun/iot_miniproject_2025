@@ -985,6 +985,11 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
 
 - iot센서 구동없이 테스트용 mqtt발행 python 코드 [코드](./miniproject_mes_conveyorbelt/MQTTPUT.py)
 
+
+https://github.com/user-attachments/assets/03bc97f5-686f-4022-948d-5b52eb214402
+
+
+
 #### 최종 구현 영상
 1. 적외선센서와 컨베이어벨트
 
