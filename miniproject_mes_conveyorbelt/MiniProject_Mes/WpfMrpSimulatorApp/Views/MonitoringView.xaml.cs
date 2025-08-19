@@ -59,7 +59,7 @@ namespace WpfMrpSimulatorApp.Views
             DoubleAnimation pa = new DoubleAnimation();
             pa.From = 127;
             pa.To = 417;
-            pa.Duration = TimeSpan.FromSeconds(2);
+            pa.Duration = TimeSpan.FromSeconds(1);
 
             Product.BeginAnimation(Canvas.LeftProperty, pa);
         }

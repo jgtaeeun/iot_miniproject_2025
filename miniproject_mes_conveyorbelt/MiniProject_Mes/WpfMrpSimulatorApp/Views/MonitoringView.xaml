@@ -44,16 +44,7 @@
                                    Minimum="0" 
                                    Value="{Binding SchIdx}"/>
                 <Button Content="Search" Command="{Binding SearchProcessCommand}" Margin="0,0,5,0" />
-                <Button Content="Start" Command="{Binding StartProcessCommand}">
-                    <Button.ContentTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <iconPacks:PackIconMaterial Kind="Restart"/>
-                                <Label Content="{Binding}" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </Button.ContentTemplate>
-                </Button>
+                
                
             </StackPanel>
             <!--HMI-->

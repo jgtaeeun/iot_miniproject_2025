@@ -16,7 +16,7 @@ using System.Windows.Media;
 using System.Xml.Schema;
 using WpfMrpSimulatorApp.Helpers;
 using WpfMrpSimulatorApp.Models;
-
+using System.Windows;
 namespace WpfMrpSimulatorApp.ViewModels
 {
     public partial class MonitoringViewModel : ObservableObject
@@ -142,14 +142,14 @@ namespace WpfMrpSimulatorApp.ViewModels
         {
             this._dialogCoordinator = coordinator;
             ProductBrush = Brushes.Gray;
-            SchIdx = 0;
+            SchIdx =1;
             SucessAmount = FailAmount = 0;
             SuccessRate = string.Empty;
 
             //MQTT 설정
             brokerHost = "192.168.0.2";
-            subTopic = "pknu/mes/Monitoring/CheckTrueFalse";   //iotsimulator에서 양품불량품 확인
-            pubTopic = "pknu/mes/Monitoring/CheckSchId";      //mrs에서 schId선택되었는지 확인
+            subTopic = "pknu/sf52/data";   //iotsimulator에서 양품불량품 확인
+          
             InitMqttClient();
             StartMqttMonitor();
         }
@@ -236,33 +236,41 @@ namespace WpfMrpSimulatorApp.ViewModels
                         FailAmount += 1;
                         ProductBrush = Brushes.Crimson;
                     }
-                    else
+                    else if (data.Result == "OK")
                     {
                         SucessAmount += 1;
                         ProductBrush = Brushes.Green;
 
+                    }
+                     else if (data.Result.ToUpper().Equals("START"))
+                    {
+                        // MQTT 스레드에서 UI 스레드 분리 동작
+                        // 애니메이션 시작!
+                        // UI 스레드에서 실행해야 할 코드
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            // UI 업데이트 코드
+                            ProductBrush = Brushes.Gray;
+                            StartHmiRequested?.Invoke();  // 컨베이어벨트 애니메이션 요청(View에서 처리)
+                        });
+                       
+                       
                     }
 
                     SuccessRate = String.Format("{0:0.0}", (SucessAmount * 100.0 / (SucessAmount + FailAmount))) + " %";
 
                     using (var db = new IotDbContext())
                     {
-                        var exists = db.Processes.Any(p => p.SchIdx == data.PIdx && p.PrcDate == data.TimeStamp);
-                        if (!exists)
-                        {
+                      
                             db.Processes.Add(new Models.Process
                             {
-                                SchIdx = data.PIdx,
+                                SchIdx = SchIdx,
                                 PrcDate = Convert.ToString(data.TimeStamp),
                                 PrcResult = (sbyte?)(data.Result == "FAIL" ? 0 : 1),
-                                PrcLoadTime = data.LoadTime,
-                                PrcCd = data.PlantCode
+                                PrcLoadTime = 10,
+                                PrcCd = "PLT01001"
                             });
                             await db.SaveChangesAsync();
-
-                        }
-
-
                     }
                 }
             }
@@ -417,110 +425,6 @@ namespace WpfMrpSimulatorApp.ViewModels
 
 
 
-        //---------------- 애니메이션 호출함수
-        [RelayCommand]
-        public async Task StartProcess()
-        {
-            PlantName = string.Empty;
-            PrcDate = string.Empty;
-            PrcLoadTime = string.Empty;
-            PrcCodeDesc = string.Empty;
-            SchAmount = 0;
-            //SucessAmount = FailAmount = 0;
-            SuccessRate = string.Empty;
-            tempPrcLoadTime = 0;
-            tempPrcCd = string.Empty;
-
-            if (SchIdx == 0)
-            {
-                await this._dialogCoordinator.ShowMessageAsync(this, "알림", "순번을 입력하세요");
-                return;
-            }
-           
-            if (currSchIdx < SchIdx ||  currSchIdx > SchIdx)
-            {
-                SucessAmount = FailAmount = 0;
-            }
-            currSchIdx = SchIdx;
-            //db에서 선택된 schIdx의 기본정보 가져옴
-            try
-            {
-                string query = "SELECT plantCode, loadTime FROM schedules where schIdx = @schidx";
-
-               
-                using (MySqlConnection conn = new MySqlConnection(Common.CONNSTR))
-                {
-                    conn.Open();
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@schidx", SchIdx);
-                    MySqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                         tempPrcLoadTime= reader.GetInt32("loadTime");
-                         tempPrcCd = reader.GetString("plantCode"); 
-
-                    }
-
-                }
-
-             }
-            catch (Exception ex)
-            {
-                await this._dialogCoordinator.ShowMessageAsync(this, "오류", ex.Message);
-            }
-
-
-            try
-            { 
-
-            await this._dialogCoordinator.ShowMessageAsync(this, "공정시작", "공정을 시작합니다");
-            if (tempPrcCd == string.Empty || tempPrcLoadTime <=0)
-            {
-                await this._dialogCoordinator.ShowMessageAsync(this, "공정조회", "해당 공정이 없습니다.");
-                return;
-            }
-
-      
-            
-            
-            
-            //MQTT로 데이터 전송
-           
-            var payload = new CheckResult { PIdx = SchIdx, Result = "CheckSchId", TimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") , PlantCode = tempPrcCd, LoadTime = tempPrcLoadTime };
-            var jsonPayload = JsonConvert.SerializeObject(payload, Formatting.Indented);
-            var message = new MqttApplicationMessageBuilder()
-                        .WithTopic(pubTopic)
-                        .WithPayload(jsonPayload)
-                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                        .Build();
-
-            //발행
-            if (mqttClient.IsConnected)
-            {
-                await mqttClient.PublishAsync(message);
-                Debug.WriteLine("MQTT 데이터 발행 완료");
-            }
-            else
-            {
-                Debug.WriteLine("MQTT 클라이언트가 연결되어 있지 않습니다.");
-                var options = new MqttClientOptionsBuilder()
-                        .WithTcpServer(brokerHost, 1883)
-                        .WithCleanSession(true)
-                        .Build();
-
-                await mqttClient.ConnectAsync(options); // 재접속
-                }
-
-            ProductBrush = Brushes.Gray;
-            StartHmiRequested?.Invoke();
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-        }
 
 
         [RelayCommand]

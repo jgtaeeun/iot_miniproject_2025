@@ -924,9 +924,17 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
 ### MES 공정관리
 #### 센서(컨베이어 벨트)
 1. 미니프로젝트 MES공정관리의 시뮬레이터를 컨베이어벨트(적외선센서)로 변경
-    - <img src='./miniproject_mes_conveyorbelt/img/전체구조.png'>
+  
+|항목|이미지|
+|:--:|:--:|
+|전체구조|<img src='./miniproject_mes_conveyorbelt/img/전체구조.png'>|
+|하드웨어구성|<img src='./miniproject_mes_conveyorbelt/img/하드웨어구성확인.png'>|
+|모터쉴드| <img src='./miniproject_mes_conveyorbelt/img/모터쉴드사용법.png'>|
+|모터|<img src='./miniproject_mes_conveyorbelt/img/모터연결.png'>|
+
 
 2. 각 부품의 역할
+
 |부품|역할 및 기능|
 |:--:|:--:|
 |아두이노 R4 WIFI|	모든 센서와 모터를 제어하고 데이터를 처리하는 중앙 컨트롤러 역할|
@@ -937,6 +945,7 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
 |컨베이어벨트|	공정 중인 물체를 이동시키는 메커니즘|
 
 3. 부품 설명
+
 |부품|상세설명|
 |:--:|:--:|
 |아두이노 R4 WIFI|아두이노 R3의 단점 개선한 제품<br><br> WIFI탑재<br>LED DISPLAY 추가<br> 데이터 케이블 USB C TYPE<br><br> <img src='./miniproject_mes_conveyorbelt/img/아두이노r4wifi.png' width =500>|
@@ -970,6 +979,11 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
 |:--:|:--:|
 |WpfMrpSimulatorApp > MonitoringView.xaml에서 Start Button 불필요|<img src='./miniproject_mes_conveyorbelt/img/mrpsimulator.png'>|
 |WpfMqttSubApp > ConnectMqttCommand를 위한 config.json 확인 <br> <img src='./miniproject_mes_conveyorbelt/img/토픽.png'>|<img src='./miniproject_mes_conveyorbelt/img/mqtt구독.png'>|
+|WpfMrpSimulatorApp >  MonitoringViewModel.cs에서 mqtt설정확인|  <img src='./miniproject_mes_conveyorbelt/img/토픽.png'>|
+|WpfMrpSimulatorApp >  MonitoringViewModel.cs에서 조건 추가|using System.Windows; <br> <img src='./miniproject_mes_conveyorbelt/img/mqtt구독결과위한조건추가.png'>|
+|WpfMrpSimulatorApp > MonitoringViewModel.cs에서 db저장 코드 수정 필요<br> 현재는 schIdx, prcCode,loadTime을 임시로 고정된 값으로 둠.|<img src='./miniproject_mes_conveyorbelt/img/db저장코드.png'> <br> <img src='./miniproject_mes_conveyorbelt/img/db저장.png'>|
+
+- iot센서 구동없이 테스트용 mqtt발행 python 코드 [코드](./miniproject_mes_conveyorbelt/MQTTPUT.py)
 
 #### 최종 구현 영상
 1. 적외선센서와 컨베이어벨트
