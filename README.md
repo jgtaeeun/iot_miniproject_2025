@@ -920,6 +920,64 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
     - MainView 상태표시줄 완성
     - 예외처리 마무리
     
+## 미니프로젝트2
+### MES 공정관리
+#### 센서(컨베이어 벨트)
+1. 미니프로젝트 MES공정관리의 시뮬레이터를 컨베이어벨트(적외선센서)로 변경
+    - <img src='./miniproject_mes_conveyorbelt/img/전체구조.png'>
+
+2. 각 부품의 역할
+|부품|역할 및 기능|
+|:--:|:--:|
+|아두이노 R4 WIFI|	모든 센서와 모터를 제어하고 데이터를 처리하는 중앙 컨트롤러 역할|
+|적외선 센서 2개 (IR센서)|	물체의 위치 추적용 <br>→ IR 센서1: 물체가 컨베이어에 진입함을 감지<br> → IR 센서2: 공정 완료 후 물체가 빠져나감을 감지|
+|TCS3200 컬러 센서|	물체의 색상을 인식하여 공정 데이터를 식별 (양품불량품확인)|
+|L298 모터 드라이버|	DC 모터 제어를 위해 사용됨 (속도/방향 제어)|
+|12V 외부 전원	|컨베이어벨트 구동용 DC 모터에 충분한 전력 공급|
+|컨베이어벨트|	공정 중인 물체를 이동시키는 메커니즘|
+
+3. 부품 설명
+|부품|상세설명|
+|:--:|:--:|
+|아두이노 R4 WIFI|아두이노 R3의 단점 개선한 제품<br><br> WIFI탑재<br>LED DISPLAY 추가<br> 데이터 케이블 USB C TYPE<br><br> <img src='./miniproject_mes_conveyorbelt/img/아두이노r4wifi.png' width =500>|
+|L298 모터 드라이버 모듈|<img src='./miniproject_mes_conveyorbelt/img/l298모터모듈.png'><br><img src='./miniproject_mes_conveyorbelt/img/l298.png'>|
+| TCS3200 컬러센서| RGB색상을 체크하는데 작게 센싱되는 값이 해당 색상을 의미 <br> <img src='./miniproject_mes_conveyorbelt/img/z컬러센서.png'><br> <img src='./miniproject_mes_conveyorbelt/img/컬러센서2.png'>|
+
+
+4. 에듀이노 제공 소스로  아두이노 코딩 시작 [소스](https://m.eduino.kr/skin-skin244/product/detail.html?product_no=2335&cate_no=181&display_group=1)
+
+|센서|핀연결|소스코드|
+|:--:|:--:|:--:|
+|패시브 부저 동작|디지털핀 4|[소스](./miniproject_mes_conveyorbelt/03.ino)|
+|컨베이어벨트 모터 컨트롤|아날로그핀|속도(value)값이 75이하가 되면 모터 동작 안함<br>150이상은 벨트 속도가 너무 빠름<br>외부 전원 필요<br>[소스](./miniproject_mes_conveyorbelt/04.ino)|
+|적외선 감지센서|아날로그핀|A0이 감지되면 컨베이어벨트 움직임 <br> A1이 감지되면 컨벵디어벨트 정지<br>[소스](./miniproject_mes_conveyorbelt/02.ino)|
+|적외선 센서와 컨베이어 벨트|아날로그핀|왼쪽 IR 센서(IR_LEFT)가 물체를 감지하면 → 컨베이어 작동 시작<br>오른쪽 IR 센서(IR_RIGHT)가 물체를 감지하면 → 컨베이어 정지<br>안전을 위해, 일정 시간 이상 지나면 자동 정지 (SAFETY_MS)<br>[소스](./miniproject_mes_conveyorbelt/06.ino)|
+|컬러센서|디지털핀|1. RGB 필터로 각각 주기 측정 <br>2. 주기가 가장 짧은 색 → 지배색 <br> 3. 주기 값 비교로 검정, 회색/하양, R/G/B 분류 <br>4. 결과를 시리얼로 출력 <br> 5. 150ms 후 반복 <br> [소스](./miniproject_mes_conveyorbelt/01.ino)|
+|적외선 센서, 컨베이어 벨트, 컬러센서 통합||1. 입구 IR 센서(A0)로 물체 감지 → 컨베이어 작동 시작<br> 2. 출구 IR 센서(A1)에서 물체 감지 → 벨트 정지<br> 3. 1초 대기 → 컬러 센서(TCS3200)로 색상 3회 측정<br> 4. 다수결로 최종 색상 판별 → 결과 출력<br> 5. 대기 상태로 복귀 → 다음 물체 감지 대기<br> [소스](./miniproject_mes_conveyorbelt/07.ino)|
+|mqtt통신|아두이노 R4 WIFI에서 통신 가능<br> 라즈베리파이나 외부연결 불필요|[소스](./miniproject_mes_conveyorbelt/05.ino)|
+|적외선 센서, 컨베이어 벨트, 컬러센서 ,mqtt통신 통합||입구 IR 센서 감지 시 컨베이어 시작과 함께 "START" 이벤트를 MQTT로 발행하는 부분 (publishStartEvent() 호출)<br>최종 컬러 판별 결과를 JSON 형식으로 "OK" 또는 "FAIL"로 MQTT 전송 (publishFinalResult() 함수)<br>NTP로 시간 동기화해서 "Timestamp" 필드를 JSON에 포함하는 부분<br>MQTT 서버 접속 유지 및 재접속 처리<br>적절한 상태 머신으로 각 동작을 잘 구분<br>[소스](./miniproject_mes_conveyorbelt/08.ino)|
+
+5. 양품/불량품 판단 기준
+
+|기준|코드|
+|:--:|:--:|
+|컬러 분류 부분|<img src='./miniproject_mes_conveyorbelt/img/컬러분류부분.png'>|
+|MQTT 결과 출력 부분|<img src='./miniproject_mes_conveyorbelt/img/mqtt결과출력부분.png'>|
+
+#### 공정관리 WPF 수정필요 [WpfMrpSimulatorApp](./miniproject_mes_conveyorbelt/MiniProject_Mes/WpfMrpSimulatorApp/)
+
+|수정사항|이미지|
+|:--:|:--:|
+|WpfMrpSimulatorApp > MonitoringView.xaml에서 Start Button 불필요|<img src='./miniproject_mes_conveyorbelt/img/mrpsimulator.png'>|
+|WpfMqttSubApp > ConnectMqttCommand를 위한 config.json 확인 <br> <img src='./miniproject_mes_conveyorbelt/img/토픽.png'>|<img src='./miniproject_mes_conveyorbelt/img/mqtt구독.png'>|
+
+#### 최종 구현 영상
+1. 적외선센서와 컨베이어벨트 
+2. 컬러센서
+3. 통합 공정라인(적외선 센서, 컨베이어 벨트, 컬러센서) 및 공정 모니터링
+
+
+## 미니프로젝트3
 #### 파이썬 AI + ASP.NET 연동
 
 
