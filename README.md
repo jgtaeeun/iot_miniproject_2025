@@ -972,9 +972,27 @@ https://github.com/user-attachments/assets/5b0d6a88-38e0-4428-997d-28b8bb5a88fa
 |WpfMqttSubApp > ConnectMqttCommand를 위한 config.json 확인 <br> <img src='./miniproject_mes_conveyorbelt/img/토픽.png'>|<img src='./miniproject_mes_conveyorbelt/img/mqtt구독.png'>|
 
 #### 최종 구현 영상
-1. 적외선센서와 컨베이어벨트 
+1. 적외선센서와 컨베이어벨트
+
+
+https://github.com/user-attachments/assets/f71a790f-6a0e-4dbf-9d46-831b92a5f0a7
+
+
 2. 컬러센서
-3. 통합 공정라인(적외선 센서, 컨베이어 벨트, 컬러센서) 및 공정 모니터링
+
+
+https://github.com/user-attachments/assets/4334c370-f1cf-4f6c-8a4f-98aa8d975041
+
+
+3.  통합 공정라인(적외선 센서, 컨베이어 벨트, 컬러센서) 및 공정 모니터링
+
+
+
+https://github.com/user-attachments/assets/e0747ab2-ae9f-468e-996a-18c56010c07c
+
+
+https://github.com/user-attachments/assets/48c40406-185d-4e1a-a175-6b8aec89a790
+
 
 
 ## 미니프로젝트3
