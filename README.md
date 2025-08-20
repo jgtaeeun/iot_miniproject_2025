@@ -1015,10 +1015,87 @@ https://github.com/user-attachments/assets/48c40406-185d-4e1a-a175-6b8aec89a790
 
 
 ## 미니프로젝트3
-#### 파이썬 AI + ASP.NET 연동
+### 파이썬 AI(API동작) + ASP.NET Core 연동 프로젝트
+### python 기본
+
+#### 파이썬 웹애플리케이션
+1. dJango : 대규모 웹앱 개발시 사용 프레임워크. 구조화 잘되어 있음. 무겁다
+2. flask : 소규모 웹앱 개발시 사용. 가볍다. 필요 개발을 개발자가 모두 구현
+3. `uvicorn` : 진짜 소규모 웹앱 개발 사용. FastAPI랑 연동. 무지 가볍다
+
+#### FastAPI
+- RESTful API를 손쉽게 만들어주는 웹 프레임워크
+- uvicorn 웹앱 프레임워크와 같이 사용
 
 
-### 파이널 프로젝트
+#### 기본 패키지 설치
+
+```shell
+> pip install fastapi uvicorn
+```
+
+|FastAPI 테스트 실행 [ 소스코드](./miniproject_aspnet/step1/main.py)|
+|:--:|
+|<img src= './miniproject_aspnet/img/FASTAPI1.png'><br><img src= './miniproject_aspnet/img/FASTAPI2.png'>|
+
+
+#### 데이터 유효성검사 패키지 pydantic
+
+|기본적인 CRUD(Create, Read) 기능 중 일부를 구현한 미니 REST API [ 소스코드](./miniproject_aspnet/step1/main2.py)|
+|:--:|
+|<img src= './miniproject_aspnet/img/중요문법.png'>|
+|<img src= './miniproject_aspnet/img/FASTAPI3.png'><br><img src= './miniproject_aspnet/img/FASTAPI4.png'>|
+
+### ASP.NET Core 기본 [소스코드](./miniproject_aspnet/ASPWebSolution/ASPWebSolution/)
+- 파이썬에서 만들어져서 uvicorn으로 전달되는 데이터를 수신받아서 표현하는 웹앱
+- `ASP.NET Core 비어있음`으로 생성. MVC로 생성 시 필요없는 파일이 다수 생성
+- HTTPS를 선택 해제
+- Program.cs에서 ASP.NET Core 기반의 웹 애플리케이션의 시작점을 정의 [소스코드](./miniproject_aspnet/ASPWebSolution/ASPWebSolution/Program.cs)
+
+#### 파이썬 웹서버 송신 데이터 처리
+
+|구성 요소	|역할|
+|:--:|:--:|
+|HTML/JS|	사용자 인터페이스, 버튼 클릭 시 API 요청|
+|ASP.NET Core|	중간 API 서버, Python 서버와 클라이언트를 연결|
+|Python (FastAPI)|	실제 데이터 생성 및 응답 서버 역할|
+
+<img src='./miniproject_aspnet/img/mp0019.png'>
+
+### 파이썬 AI Server 구현
+#### 필요 라이브러리
+- fastapi
+- uvicorn
+- pydantic
+- Pillow : 이미지 열기, 저장 라이브러리
+- numpy : 수치 연산
+- requests : HTTP로 요청
+- opencv-python : 이미지, 비디오 처리
+- python-multipart : 멀티파트(이미지, 비디오) 파싱
+
+```shell
+> pip install fastapi uvicorn
+> pip install Pillow numpy requests opencv-python python-multipart
+```
+#### 설치 순서 
+1. ultralytics 설치
+    - YOLOv5/v8 모델을 사용하기 위한 라이브러리입니다.
+    - 설치하면 자동으로 **PyTorch (CPU 버전)**이 함께 설치됩니다.
+    - 이로 인해 GPU를 사용하지 못할 수 있습니다.
+    ```shell
+    pip install ultralytics
+    ```
+2. PyTorch GPU 버전 덮어쓰기 (CUDA 12.6 기준)
+    - ultralytics를 먼저 설치하면 PyTorch CPU 버전이 자동 설치되기 때문에, GPU를 사용하려면 PyTorch GPU 버전을 재설치해야 합니다.
+
+    ```shell
+    > pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+    ```
+
+#### AI Server
+- 웹서버 실행 [ 소스코드](./miniproject_aspnet/step2/main1.py)
+
+## 파이널 프로젝트
 
 
 #### 주제선정 
