@@ -1052,7 +1052,7 @@ https://github.com/user-attachments/assets/48c40406-185d-4e1a-a175-6b8aec89a790
 - HTTPS를 선택 해제
 - Program.cs에서 ASP.NET Core 기반의 웹 애플리케이션의 시작점을 정의 [소스코드](./miniproject_aspnet/ASPWebSolution/ASPWebSolution/Program.cs)
 
-#### 파이썬 웹서버 송신 데이터 처리
+### 파이썬 웹서버 송신 데이터 처리
 
 |구성 요소	|역할|
 |:--:|:--:|
@@ -1062,38 +1062,54 @@ https://github.com/user-attachments/assets/48c40406-185d-4e1a-a175-6b8aec89a790
 
 <img src='./miniproject_aspnet/img/mp0019.png'>
 
-### 파이썬 AI Server 구현
-#### 필요 라이브러리
-- fastapi
-- uvicorn
-- pydantic
-- Pillow : 이미지 열기, 저장 라이브러리
-- numpy : 수치 연산
-- requests : HTTP로 요청
-- opencv-python : 이미지, 비디오 처리
-- python-multipart : 멀티파트(이미지, 비디오) 파싱
-
-```shell
-> pip install fastapi uvicorn
-> pip install Pillow numpy requests opencv-python python-multipart
-```
-#### 설치 순서 
-1. ultralytics 설치
-    - YOLOv5/v8 모델을 사용하기 위한 라이브러리입니다.
-    - 설치하면 자동으로 **PyTorch (CPU 버전)**이 함께 설치됩니다.
-    - 이로 인해 GPU를 사용하지 못할 수 있습니다.
-    ```shell
-    pip install ultralytics
-    ```
-2. PyTorch GPU 버전 덮어쓰기 (CUDA 12.6 기준)
-    - ultralytics를 먼저 설치하면 PyTorch CPU 버전이 자동 설치되기 때문에, GPU를 사용하려면 PyTorch GPU 버전을 재설치해야 합니다.
+#### 파이썬 AI Server 구현
+- 필요 라이브러리
+    - fastapi
+    - uvicorn
+    - pydantic
+    - Pillow : 이미지 열기, 저장 라이브러리
+    - numpy : 수치 연산
+    - requests : HTTP로 요청
+    - opencv-python : 이미지, 비디오 처리
+    - python-multipart : 멀티파트(이미지, 비디오) 파싱
 
     ```shell
-    > pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+    > pip install fastapi uvicorn
+    > pip install Pillow numpy requests opencv-python python-multipart
     ```
+- 설치 순서 
+    1. ultralytics 설치
+        - YOLOv5/v8 모델을 사용하기 위한 라이브러리입니다.
+        - 설치하면 자동으로 **PyTorch (CPU 버전)**이 함께 설치됩니다.
+        - 이로 인해 GPU를 사용하지 못할 수 있습니다.
+        ```shell
+        pip install ultralytics
+        ```
+    2. PyTorch GPU 버전 덮어쓰기 (CUDA 12.6 기준)
+        - ultralytics를 먼저 설치하면 PyTorch CPU 버전이 자동 설치되기 때문에, GPU를 사용하려면 PyTorch GPU 버전을 재설치해야 합니다.
 
-#### AI Server
-- 웹서버 실행 [ 소스코드](./miniproject_aspnet/step2/main1.py)
+        ```shell
+        > pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+        ```
+
+|코드|실행 결과|
+|:--:|:--:|
+|웹서버 실행 [ 소스코드](./miniproject_aspnet/step2/main1.py)||
+|YOLOv8 모델을 사용하여 이미지에서 객체를 인식하고, 인식된 객체에 대해 결과 이미지를 반환하는 기능 [ 소스코드](./miniproject_aspnet/step2/main2.py)<br>uvicorn miniproject_aspnet.step2.main2:app --reload| <img src='./miniproject_aspnet/img/이미지인식웹서비스.png'><br><img src='./result1.jpg'>|
+|FastAPI 웹 프레임워크를 사용하여 이미지를 업로드하고, YOLOv8 객체 탐지 모델을 통해 이미지 내의 객체를 인식하는 웹 서비스 (라벨링 추가) [ 소스코드](./miniproject_aspnet/step2/main3.py)|<img src='./miniproject_aspnet/img/이미지인식웹서비스get2.png'><br><img src='./result.jpg'>|
+
+#### ASP.NET Core 
+- `ASP.NET Core 비어있음`으로 생성. MVC로 생성 시 필요없는 파일이 다수 생성
+- HTTPS를 선택 해제
+- Program.cs에서 ASP.NET Core 기반의 웹 애플리케이션의 시작점을 정의 [소스코드](./miniproject_aspnet/ASPWebSolution2/ASPWebSolution2/Program.cs)
+- 포트번호 5200 설정 [ 소스코드](./miniproject_aspnet/ASPWebSolution2/ASPWebSolution2/Properties/launchSettings.json)
+- wwwroot 폴더 생성 및 폴더 내 index.html 파일 생성
+
+|코드|실행 결과|
+|:--:|:--:|
+|사용자가 이미지를 업로드하고, 해당 이미지에 대한 물체 인식 결과를 받아오는 웹 페이지 생성 <br> JavaScript를 사용하여 비동기적으로 파일을 서버에 전송하고, 결과를 화면에 표시[ 소스코드](./miniproject_aspnet/ASPWebSolution2/ASPWebSolution2/wwwroot/index.html) |<img src='./miniproject_aspnet/img/aspnet.png'>|
+ 
+#### 파이썬 AI Server + ASP.NET Core 
 
 ## 파이널 프로젝트
 
